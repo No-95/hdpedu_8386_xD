@@ -128,7 +128,7 @@ export default function TaiLieuPage() {
                   >
                     <div className="flex justify-between items-start mb-4">
                       <div className="p-3 rounded-xl shadow-lg light:bg-white/20 dark:bg-white/10">
-                        {React.isValidElement(doc.icon) ? React.cloneElement(doc.icon, { className: "text-white" }) : doc.icon}
+                        {React.isValidElement(doc.icon) ? React.cloneElement(doc.icon as React.ReactElement<any>, { className: "text-white" }) : doc.icon}
                       </div>
                       <Badge className="light:bg-white/20 dark:bg-white/10 text-white border-none text-[10px]">
                         {doc.category}

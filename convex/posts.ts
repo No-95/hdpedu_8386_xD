@@ -11,7 +11,7 @@ async function enrichPost(
   currentUserId: Id<"users"> | null
 ) {
   // Pull the raw users document for canonical name/avatar
-  const user = await ctx.db.get("users", post.userId);
+  const user = await ctx.db.get(post.userId);
 
   // Fetch author profile from profiles table
   const profile = await ctx.db
@@ -236,7 +236,7 @@ export const getComments = query({
     const enriched = await Promise.all(
       comments.map(async (comment) => {
         // Pull author document from built-in `users` table
-        const user = await ctx.db.get("users", comment.userId);
+        const user = await ctx.db.get(comment.userId);
 
         // Fetch author profile from profiles table
         const profile = await ctx.db

@@ -1,7 +1,5 @@
 "use client"
 
-export const dynamic = 'force-dynamic'
-
 import { useRef, useEffect, useCallback, useState } from "react"
 import { usePaginatedQuery, useMutation } from "convex/react"
 import { api } from "@/convex/_generated/api"
@@ -13,6 +11,7 @@ import { AuthGate } from "@/components/blog/auth-gate"
 import { initialPosts, generateMockPosts } from "@/lib/blog-data"
 import type { BlogPost, BlogAuthor } from "@/lib/blog-data"
 import { useUser } from "@/lib/user-context"
+import { useConvexReady } from "@/app/ConvexClientProvider"
 
 /* ── Convert a Convex post document to the BlogPost shape ── */
 function convexPostToBlogPost(post: any): BlogPost {
@@ -163,7 +162,7 @@ function FallbackFeed({
         id: "self",
         name: displayName,
         username: displayName.toLowerCase().replace(/\s+/g, "."),
-        avatar: "",
+        avatarUrl: "",
         role: "Student",
         bio: "Community member",
         subjects: [],
@@ -241,6 +240,7 @@ function FallbackFeed({
    ================================================================ */
 export default function BlogPage() {
   const { user, isAuthenticated, isLoading: authLoading } = useUser()
+  const convexReady = useConvexReady()
   const displayName = user.name || user.email?.split("@")[0] || "Guest"
   const isLoading = authLoading
 
@@ -279,7 +279,7 @@ export default function BlogPage() {
           </aside>
 
           <div className="min-w-0 flex-1">
-            {!isLoading ? (
+            {!isLoading && convexReady ? (
               <ConvexFeed displayName={displayName} isAuthenticated={isAuthenticated} />
             ) : (
               <FallbackFeed displayName={displayName} isAuthenticated={isAuthenticated} />

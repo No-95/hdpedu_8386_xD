@@ -122,7 +122,7 @@ export const translations: Translations = {
   administrativeOffice: { vi: "Hành Chính Văn Phòng", ko: "행정·사무" },
   administrativeDesc: { vi: "Nhân sự, tổ chức công ty và quy định nội bộ.", ko: "인사, 회사 조직 및 내규" },
   itSpecialized: { vi: "Chuyên Ngành IT", ko: "IT 전문" },
-  itDesc: { vi: "Hạ tầng, phần mềm, lập trình và bảo mật.", ko: "인프라, 소프트웨어, 프로그래밍 및 보안" },
+  itDesc: { vi: "Hạ tầng, phần mềm, lập trình và bảo mật.", ko: "인프라, 소프트웨어, 프로그래밍 및 ���안" },
   economicsFinance: { vi: "Kinh Tế & Tài Chính", ko: "경제 및 금융" },
   economicsDesc: { vi: "Vĩ mô, ngân hàng, thuế và quản trị kinh doanh.", ko: "거시경제, 은행업, 세금 및 경영관리" },
   beautyStpa: { vi: "Thẩm Mỹ & SPA", ko: "미용 및 스파" },
@@ -140,6 +140,16 @@ export const translations: Translations = {
   totalStudyTime: { vi: "Thời Gian Học", ko: "학습 시간" },
   nothingHighlight: { vi: "Chưa Có Hoạt Động Gì Nổi Bật, Thử Khám Phá Các Tính Năng Khác Ngay.", ko: "아직 주목할 활동이 없습니다. 다른 기능을 탐색해보세요." },
   
+  // Achievement Page
+  achievementTitle: { vi: "Thành Tích Của Bạn", ko: "당신의 업적" },
+  achievementDescription: { vi: "Theo dõi tiến trình và thành tích học tập của bạn", ko: "학습 진행 상황과 업적을 추적하세요" },
+  certificates: { vi: "Chứng chỉ", ko: "자격증" },
+  badges: { vi: "Huy hiệu", ko: "뱃지" },
+  points: { vi: "Điểm", ko: "포인트" },
+  level: { vi: "Cấp độ", ko: "레벨" },
+  unlocked: { vi: "Đã mở", ko: "잠금 해제" },
+  locked: { vi: "Chưa mở", ko: "잠금" },
+
   // Classroom Page
   totalDuration: { vi: "Tổng Thời Lượng", ko: "전체 기간" },
   totalLessons: { vi: "Tổng Bài Học", ko: "전체 강의" },

@@ -1,7 +1,5 @@
 "use client";
 
-export const dynamic = 'force-dynamic';
-
 import {
   BookOpen,
   Clock,
@@ -49,6 +47,7 @@ export default function DashboardPage() {
   // Track if we have ever loaded data once to avoid "flicker"
   const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [secondsOnPage, setSecondsOnPage] = useState(0);
 
   useEffect(() => {
     setMounted(true);
@@ -68,6 +67,13 @@ export default function DashboardPage() {
       }
     }
   }, [isLoading, isAuthenticated, router, mounted]);
+
+  useEffect(() => {
+    const timerId = setInterval(() => {
+      setSecondsOnPage((s) => s + 1);
+    }, 1000);
+    return () => clearInterval(timerId);
+  }, []);
 
   const handleSignOut = async () => {
     await signOut();
@@ -94,14 +100,6 @@ export default function DashboardPage() {
   const purchasedCount = 0; // always zero as per new requirement
   const inProgressCount = 0;
   const completedCount = 0;
-
-  const [secondsOnPage, setSecondsOnPage] = useState(0);
-  useEffect(() => {
-    const timerId = setInterval(() => {
-      setSecondsOnPage((s) => s + 1);
-    }, 1000);
-    return () => clearInterval(timerId);
-  }, []);
 
   const formatTime = (sec: number) => {
     const hrs = Math.floor(sec / 3600);

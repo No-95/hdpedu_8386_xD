@@ -80,7 +80,7 @@ export function ProfileCustomizer() {
             <div className="flex items-center gap-4">
               <Avatar className="h-16 w-16 border-2 border-white/20">
                 {previewUrl ? (
-                  <AvatarImage src={previewUrl || null} alt={user.name} />
+                  <AvatarImage src={previewUrl || undefined} alt={user.name} />
                 ) : (
                   <AvatarFallback className="bg-[#A62A26] text-white font-bold">
                     {getInitials(user.name || "User")}
@@ -108,7 +108,7 @@ export function ProfileCustomizer() {
                 </label>
                 <Avatar className="h-20 w-20 border-2 border-white/20">
                   {previewUrl ? (
-                    <AvatarImage src={previewUrl || null} alt="preview" />
+                    <AvatarImage src={previewUrl || undefined} alt="preview" />
                   ) : (
                     <AvatarFallback className="bg-[#A62A26] text-white font-bold">
                       {getInitials(displayName || "User")}

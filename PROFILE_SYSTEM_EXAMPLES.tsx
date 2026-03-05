@@ -15,7 +15,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 
 export function ProfileCard({ username }: { username: string }) {
-  const profile = useQuery(api.users.getByUsername, { username });
+  const profile = useQuery(api.profiles.getByUsername, { username });
 
   if (!profile) return <div>Profile not found</div>;
 
@@ -23,7 +23,7 @@ export function ProfileCard({ username }: { username: string }) {
     <div className="border rounded-lg p-4">
       <div className="flex items-center gap-4">
         <Avatar>
-          <AvatarImage src={profile.avatarUrl || null} />
+          <AvatarImage src={profile.avatarUrl || undefined} />
           <AvatarFallback>{profile.displayName[0]}</AvatarFallback>
         </Avatar>
         <div>
@@ -53,7 +53,7 @@ import { useMutation } from "convex/react";
 import { useRef } from "react";
 
 export function ProfileEditForm() {
-  const updateProfile = useMutation(api.users.updateProfile);
+  const updateProfile = useMutation(api.profiles.updateProfile);
   const generateUploadUrl = useMutation(api.users.generateUploadUrl);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -222,7 +222,7 @@ import { useState } from "react";
 export function useProfileOps() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const updateProfile = useMutation(api.users.updateProfile);
+  const updateProfile = useMutation(api.profiles.updateProfile);
 
   const updateUserProfile = async (data: {
     displayName?: string;
