@@ -9,8 +9,6 @@ import { Heart, MessageCircle, Share2, ChevronDown, Send, Video } from "lucide-r
 import { cn } from "@/lib/utils"
 import { AuthorHoverCard } from "./author-hover-card"
 import type { BlogPost, BlogComment } from "@/lib/blog-data"
-import { useQuery, useMutation } from "convex/react"
-import { api } from "@/convex/_generated/api"
 
 interface PostCardProps {
   post: BlogPost
@@ -120,32 +118,12 @@ export function PostCard({ post, onLike }: PostCardProps) {
   const [replyText, setReplyText] = useState("")
   const [showShareOptions, setShowShareOptions] = useState(false)
   const [shareCount, setShareCount] = useState(post.shares)
+  const [comments, setComments] = useState<BlogComment[]>(post.comments || [])
 
-  // Only fetch comments if postId is a valid database ID (not a local mock ID)
-  const isValidDatabaseId = post.id && !post.id.startsWith("local-") && !post.id.startsWith("local_")
-  const commentsQuery = useQuery(
-    api.posts.getComments,
-    post.id.startsWith("local") ? "skip" : { postId: post.id as any }
-  ) || []
-  const [comments, setComments] = useState<BlogComment[]>([])
-  const addCommentMut = useMutation(api.posts.addComment)
-  const shareMut = useMutation(api.posts.sharePost)
-
-  // keep local state in sync with query results
+  // Keep local comments aligned with the current post object.
   useEffect(() => {
-    if (commentsQuery && commentsQuery.length > 0) {
-      const converted = commentsQuery.map((c: any) => ({
-        id: c._id,
-        author: c.author,
-        content: c.content,
-        timestamp: new Date(c._creationTime).toLocaleString(),
-        likes: c.likes,
-      }))
-      setComments(converted)
-    } else {
-      setComments([])
-    }
-  }, [commentsQuery])
+    setComments(post.comments || [])
+  }, [post.comments, post.id])
 
   const handleLike = () => onLike(post.id)
 
@@ -263,12 +241,7 @@ export function PostCard({ post, onLike }: PostCardProps) {
               <div className="absolute bottom-full mb-2 right-0 w-48 bg-white rounded-lg shadow-lg ring-1 ring-slate-200">
                 <button
                   onClick={async () => {
-                    if (!isValidDatabaseId) {
-                      alert("Cannot share local draft posts. Please save to publish.");
-                      return;
-                    }
-                    const result = await shareMut({ postId: post.id as any });
-                    if (result?.shared) setShareCount((c) => c + 1);
+                    setShareCount((c) => c + 1);
                     setShowShareOptions(false);
                     alert("Post shared to your profile.");
                   }}
@@ -280,13 +253,9 @@ export function PostCard({ post, onLike }: PostCardProps) {
                   onClick={() => {
                     const url = `${window.location.origin}/blog#${post.id}`;
                     navigator.clipboard.writeText(url);
+                    setShareCount((c) => c + 1);
                     setShowShareOptions(false);
                     alert("Link copied to clipboard");
-                    if (isValidDatabaseId) {
-                      shareMut({ postId: post.id as any }).then((res) => {
-                        if (res?.shared) setShareCount((c) => c + 1);
-                      });
-                    }
                   }}
                   className="w-full text-left px-4 py-2 text-sm hover:bg-slate-100"
                 >
@@ -297,12 +266,8 @@ export function PostCard({ post, onLike }: PostCardProps) {
                   onClick={() => {
                     const url = encodeURIComponent(`${window.location.origin}/blog#${post.id}`);
                     window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, "_blank");
+                    setShareCount((c) => c + 1);
                     setShowShareOptions(false);
-                    if (isValidDatabaseId) {
-                      shareMut({ postId: post.id as any }).then((res) => {
-                        if (res?.shared) setShareCount((c) => c + 1);
-                      });
-                    }
                   }}
                   className="w-full text-left px-4 py-2 text-sm hover:bg-slate-100"
                 >
@@ -312,12 +277,8 @@ export function PostCard({ post, onLike }: PostCardProps) {
                   onClick={() => {
                     const url = encodeURIComponent(`${window.location.origin}/blog#${post.id}`);
                     window.open(`fb-messenger://share?link=${url}`, "_blank");
+                    setShareCount((c) => c + 1);
                     setShowShareOptions(false);
-                    if (isValidDatabaseId) {
-                      shareMut({ postId: post.id as any }).then((res) => {
-                        if (res?.shared) setShareCount((c) => c + 1);
-                      });
-                    }
                   }}
                   className="w-full text-left px-4 py-2 text-sm hover:bg-slate-100"
                 >
@@ -327,12 +288,8 @@ export function PostCard({ post, onLike }: PostCardProps) {
                   onClick={() => {
                     const url = encodeURIComponent(`${window.location.origin}/blog#${post.id}`);
                     window.open(`https://zalo.me/share?url=${url}`, "_blank");
+                    setShareCount((c) => c + 1);
                     setShowShareOptions(false);
-                    if (isValidDatabaseId) {
-                      shareMut({ postId: post.id as any }).then((res) => {
-                        if (res?.shared) setShareCount((c) => c + 1);
-                      });
-                    }
                   }}
                   className="w-full text-left px-4 py-2 text-sm hover:bg-slate-100"
                 >
@@ -370,29 +327,17 @@ export function PostCard({ post, onLike }: PostCardProps) {
                 </AvatarFallback>
               </Avatar>
               <form
-                onSubmit={async (e) => {
+                onSubmit={(e) => {
                   e.preventDefault();
                   if (!replyText.trim()) return;
-                  if (!isValidDatabaseId) {
-                    alert("Cannot add comments to local draft posts. Please save to publish.");
-                    return;
-                  }
-                  try {
-                    const result: any = await addCommentMut({ postId: post.id as any, content: replyText.trim() });
-                    if (result) {
-                      // convert to BlogComment
-                      const newC: BlogComment = {
-                        id: result._id || `c-${Date.now()}`,
-                        author: result.author || post.author,
-                        content: result.content,
-                        timestamp: new Date(result._creationTime).toLocaleString(),
-                        likes: 0,
-                      };
-                      setComments((prev) => [...prev, newC]);
-                    }
-                  } catch (err) {
-                    console.warn("Failed to add comment", err);
-                  }
+                  const newC: BlogComment = {
+                    id: `c-${Date.now()}`,
+                    author: post.author,
+                    content: replyText.trim(),
+                    timestamp: new Date().toLocaleString(),
+                    likes: 0,
+                  };
+                  setComments((prev) => [...prev, newC]);
                   setReplyText("");
                 }}
                 className="relative min-w-0 flex-1"
