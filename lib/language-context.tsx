@@ -134,7 +134,6 @@ export const translations: Translations = {
   noDocuments: { vi: "Hiện tại chưa có tài liệu nào trong danh mục này", ko: "현재 이 카테고리에 문서가 없습니다" },
   
   // Dashboard Page
-  coursesInProgress: { vi: "Khóa đang học", ko: "진행 중인 과정" },
   completedCoursesLabel: { vi: "Khóa học hoàn thành", ko: "완료된 과정" },
   coursesPurchased: { vi: "Khóa học đã mua", ko: "구매한 과정" },
   totalStudyTime: { vi: "Thời Gian Học", ko: "학습 시간" },
@@ -168,7 +167,6 @@ export const translations: Translations = {
   bookMainTitle: { vi: "Tiếng Hàn trong nhà máy sản xuất — Cẩm nang giao tiếp thực chiến cho môi trường công nghiệp Hàn Quốc", ko: "제조 공장의 한국어 — 한국 산업 환경을 위한 실전 의사소통 가이드" },
   bookIntroP1: { vi: "Trong các nhà máy có vốn đầu tư Hàn Quốc, ngôn ngữ không chỉ để giao tiếp mà còn ảnh hưởng trực tiếp đến hiệu suất, an toàn và cơ hội thăng tiến. Chỉ một sai lệch nhỏ trong truyền đạt có thể gây lỗi kỹ thuật, đình trệ dây chuyền hoặc tai nạn lao động.", ko: "한국 자본이 투자한 공장에서 언어는 단순한 의사소통을 넘어 생산성, 안전 및 경력 발전에 직접적인 영향을 미칩니다. 작은 오해도 기술 오류, 생산 라인 정지 또는 산업 재해를 초래할 수 있습니다." },
   bookIntroP2: { vi: "\"Tiếng Hàn trong nhà máy sản xuất\" được biên soạn nhằm cung cấp hệ thống tiếng Hàn chuyên ngành sản xuất sát thực tế, giúp người học sử dụng đúng từ vựng, đúng ngữ cảnh và đúng tình huống công việc.", ko: "\"제조 공장의 한국어\"는 실제 제조 산업의 한국어 시스템을 제공하여 학습자가 올바른 어휘, 맥락 및 업무 상황을 사용하도록 도와줍니다." },
-  mainContent: { vi: "Nội dung chính", ko: "주요 내용" },
   mainContentIntro: { vi: "Cuốn sách bám sát quy trình vận hành của nhà máy hiện đại, theo từng bộ phận như:", ko: "이 책은 현대 공장의 운영 절차를 따르며 각 부서별로 다루고 있습니다:" },
   ppcLabel: { vi: "PPC, IQC, Dập kim loại, Ép nhựa – Khuôn, SMT, Sơn – Phủ bề mặt", ko: "PPC, IQC, 금속 프레싱, 플라스틱 사출 - 금형, SMT, 페인팅 - 표면 코팅" },
   assemblyLabel: { vi: "Lắp ráp, QC công đoạn, Bảo trì, Automation", ko: "조립, 공정 QC, 유지보수, 자동화" },

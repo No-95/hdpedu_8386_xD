@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Auth Test</title>
+</head>
+<body>
+    <h1>Testing Authentication Flow</h1>
+    <div id="status"></div>
+    
+    <script>
+        async function testAuth() {
+            const statusDiv = document.getElementById('status');
+            
+            try {
+                statusDiv.innerHTML = '<p>Step 1: Submitting login credentials...</p>';
+                
+                // Submit login
+                const formData = new FormData();
+                formData.append('email', 'hoangmaster9@gmail.com');
+                formData.append('password', 'password');
+                formData.append('flow', 'signin');
+                formData.append('redirect_uri', '/dashboard');
+                
+                const response = await fetch('/api/auth', {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'include'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    statusDiv.innerHTML += '<p>✅ Step 2: Authentication successful!</p>';
+                    statusDiv.innerHTML += '<p>Step 3: Redirecting to dashboard...</p>';
+                    
+                    // Wait a moment for cookie to be set, then redirect
+                    setTimeout(() => {
+                        window.location.href = '/dashboard';
+                    }, 500);
+                } else {
+                    statusDiv.innerHTML += '<p>❌ Authentication failed: ' + result.error + '</p>';
+                }
+            } catch (error) {
+                statusDiv.innerHTML += '<p>❌ Error: ' + error.message + '</p>';
+            }
+        }
+        
+        // Auto-run test on page load
+        testAuth();
+    </script>
+</body>
+</html>

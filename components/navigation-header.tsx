@@ -108,8 +108,7 @@ export function NavigationHeader() {
           ) : (
             <Link href="/auth">
               <Button 
-                className="bg-background/50 text-[#A62A26] hover:bg-background/80 font-semibold px-5 py-2 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg"
-              >
+                className="bg-white dark:bg-blue-600 text-black dark:text-white hover:bg-gray-100 dark:hover:bg-blue-700 font-semibold px-6 py-2 rounded-full transition-all duration-200 shadow-md hover:shadow-lg">
                 {t("loginRegister")}
               </Button>
             </Link>
@@ -184,7 +183,7 @@ export function NavigationHeader() {
               ) : (
                 <Link href="/auth" onClick={() => setMobileMenuOpen(false)}>
                   <Button 
-                    className="w-full bg-background/50 text-[#A62A26] hover:bg-background/80 font-semibold rounded-lg transition-all duration-200"
+                    className="w-full bg-background/50 text-white dark:text-[#000814] hover:bg-background/80 font-semibold rounded-lg transition-all duration-200"
                   >
                     {t("loginRegister")}
                   </Button>

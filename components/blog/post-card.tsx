@@ -150,7 +150,7 @@ export function PostCard({ post, onLike }: PostCardProps) {
   const handleLike = () => onLike(post.id)
 
   return (
-    <Card className="border border-border bg-background/50 shadow-sm transition-shadow hover:shadow-md">
+    <Card className="border border-border bg-white shadow-sm transition-shadow hover:shadow-md">
       <CardContent className="p-0">
         {/* ── Header ── */}
         <div className="flex items-start gap-3 p-4 pb-0">
@@ -192,7 +192,7 @@ export function PostCard({ post, onLike }: PostCardProps) {
 
         {/* ── Content ── */}
         <div className="px-4 pt-3 pb-2">
-          <p className="whitespace-pre-line text-sm leading-relaxed text-slate-700">
+          <p className="whitespace-pre-line text-base leading-7 text-slate-700">
             {post.content}
           </p>
         </div>

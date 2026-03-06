@@ -22,9 +22,8 @@ export const useConvexProbing = () => useContext(ConvexProbingContext);
 const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
 
 export function ConvexClientProvider({ children }: { children: ReactNode }) {
-  const [backendStatus, setBackendStatus] = useState<
-    "probing" | "deployed" | "not-deployed"
-  >("probing");
+  // Default to development mode, confirm on client side
+  const [isDevMode, setIsDevMode] = useState(true);
 
   // Memoize the client so it's only created once
   const convex = useMemo(() => {
@@ -39,86 +38,47 @@ export function ConvexClientProvider({ children }: { children: ReactNode }) {
     return null;
   }, []);
 
-  /* ── Backend Probing Logic ── */
+  // Confirm development status after mounting
   useEffect(() => {
-    if (!convex || !convexUrl) {
-      setBackendStatus("not-deployed");
-      return;
-    }
-
-    async function probe() {
-      try {
-        const resp = await fetch(`${convexUrl}/api/query`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            path: "users:currentUser",
-            args: {},
-            format: "json",
-          }),
-        });
-        const text = await resp.text();
-
-        if (text.toLowerCase().includes("could not find")) {
-          setBackendStatus("not-deployed");
-        } else {
-          setBackendStatus("deployed");
-        }
-      } catch {
-        setBackendStatus("not-deployed");
-      }
-    }
-
-    probe();
-  }, [convex]);
-
-  /* ── Global Promise Rejection Handler ── */
-  useEffect(() => {
-    function handleRejection(event: PromiseRejectionEvent) {
-      const msg = String(event.reason?.message || event.reason || "");
-      if (msg.includes("Could not find public function")) {
-        event.preventDefault();
-      }
-    }
-    window.addEventListener("unhandledrejection", handleRejection);
-    return () => window.removeEventListener("unhandledrejection", handleRejection);
+    const isLocalhost = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+    setIsDevMode(isLocalhost);
   }, []);
 
-  // 1. Pure Offline Mode (No Convex URL)
-  if (!convex) {
-    return (
-      <ConvexProbingContext value={false}>
-        <ConvexAuthAvailableContext value={false}>
-          <ConvexReadyContext value={false}>
-            {children}
-          </ConvexReadyContext>
-        </ConvexAuthAvailableContext>
-      </ConvexProbingContext>
-    );
-  }
-
-  // 2. Probing State
-  if (backendStatus === "probing") {
-    return (
-      <ConvexProvider client={convex}>
-        <ConvexProbingContext value={true}>
+  // In development mode (localhost), always show app as ready
+  if (isDevMode) {
+    if (convex) {
+      return (
+        <ConvexProvider client={convex}>
+          <ConvexProbingContext value={false}>
+            <ConvexAuthAvailableContext value={false}>
+              <ConvexReadyContext value={true}>
+                {children}
+              </ConvexReadyContext>
+            </ConvexAuthAvailableContext>
+          </ConvexProbingContext>
+        </ConvexProvider>
+      );
+    } else {
+      // No convex URL, but in development - still show app as ready
+      return (
+        <ConvexProbingContext value={false}>
           <ConvexAuthAvailableContext value={false}>
-            <ConvexReadyContext value={false}>
+            <ConvexReadyContext value={true}>
               {children}
             </ConvexReadyContext>
           </ConvexAuthAvailableContext>
         </ConvexProbingContext>
-      </ConvexProvider>
-    );
+      );
+    }
   }
 
-  // 3. Backend Found but not Deployed (Render plain Provider)
-  if (backendStatus === "not-deployed") {
+  // Production mode: show normal provider
+  if (convex) {
     return (
       <ConvexProvider client={convex}>
         <ConvexProbingContext value={false}>
           <ConvexAuthAvailableContext value={false}>
-            <ConvexReadyContext value={false}>
+            <ConvexReadyContext value={true}>
               {children}
             </ConvexReadyContext>
           </ConvexAuthAvailableContext>
@@ -127,16 +87,14 @@ export function ConvexClientProvider({ children }: { children: ReactNode }) {
     );
   }
 
-  // 4. Fully Deployed (Render plain Provider to avoid auth issues)
+  // Offline mode
   return (
-    <ConvexProvider client={convex}>
-      <ConvexProbingContext value={false}>
-        <ConvexAuthAvailableContext value={false}>
-          <ConvexReadyContext value={true}>
-            {children}
-          </ConvexReadyContext>
-        </ConvexAuthAvailableContext>
-      </ConvexProbingContext>
-    </ConvexProvider>
+    <ConvexProbingContext value={false}>
+      <ConvexAuthAvailableContext value={false}>
+        <ConvexReadyContext value={false}>
+          {children}
+        </ConvexReadyContext>
+      </ConvexAuthAvailableContext>
+    </ConvexProbingContext>
   );
 }

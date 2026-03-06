@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Mail, Lock, User, Phone, Eye, EyeOff, ArrowRight, Loader2, AlertTriangle } from "lucide-react";
@@ -9,27 +9,90 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/lib/language-context";
+import { useConvexReady, useConvexProbing } from "@/app/ConvexClientProvider";
+import { useRouter } from "next/navigation";
 
 
-function FallbackAuthForm() {
+/* ── Real Auth Form ── */
+function RealAuthForm() {
+  const router = useRouter();
+  
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     email: "", password: "", confirmPassword: "", fullName: "", phone: "",
   });
+  const { language, t } = useLanguage();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("Please wait for the backend to connect...");
+    setError(null);
+    setLoading(true);
+
+    try {
+      // Validate form data
+      if (!formData.email || !formData.password) {
+        setError("Please fill in all required fields");
+        setLoading(false);
+        return;
+      }
+
+      if (!isLogin && formData.password !== formData.confirmPassword) {
+        setError("Passwords do not match");
+        setLoading(false);
+        return;
+      }
+
+      if (!isLogin && !formData.fullName) {
+        setError("Please enter your full name");
+        setLoading(false);
+        return;
+      }
+
+      // Create FormData for submission
+      const formDataToSend = new FormData();
+      formDataToSend.append("email", formData.email);
+      formDataToSend.append("password", formData.password);
+      formDataToSend.append("flow", isLogin ? "signin" : "signup");
+      if (!isLogin) {
+        formDataToSend.append("name", formData.fullName);
+      }
+      formDataToSend.append("redirect_uri", "/dashboard");
+
+      // Submit to our Next.js API endpoint
+      const response = await fetch("/api/auth", {
+        method: "POST",
+        body: formDataToSend,
+        credentials: "include",
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        // Success! Redirect to dashboard
+        setTimeout(() => {
+          router.push("/dashboard");
+        }, 100);
+      } else {
+        setError(result.error || "Authentication failed");
+        setLoading(false);
+      }
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : "Connection error";
+      console.error("Auth error:", err);
+      setError(errorMsg);
+      setLoading(false);
+    }
   };
 
   return (
     <AuthFormShell
       isLogin={isLogin}
       setIsLogin={setIsLogin}
-      loading={false}
+      loading={loading}
       error={error}
       showPassword={showPassword}
       setShowPassword={setShowPassword}
@@ -38,17 +101,6 @@ function FallbackAuthForm() {
       formData={formData}
       setFormData={setFormData}
       onSubmit={handleSubmit}
-      banner={
-        <div className="mx-8 mt-6 flex items-start gap-3 rounded-xl bg-amber-50 border border-amber-200 p-4">
-          <AlertTriangle className="h-5 w-5 shrink-0 text-amber-500 mt-0.5" />
-          <div className="text-sm text-amber-700">
-            <p className="font-semibold">Backend not connected</p>
-            <p className="mt-1 text-amber-600">
-              Run <code className="rounded bg-amber-100 px-1.5 py-0.5 text-xs font-mono">npx convex dev</code> locally to deploy the backend functions, then refresh.
-            </p>
-          </div>
-        </div>
-      }
     />
   );
 }
@@ -231,6 +283,55 @@ function AuthFormShell({
 
 /* ── Main page ── */
 export default function AuthPage() {
+  const convexReady = useConvexReady();
+  const isProbing = useConvexProbing();
+  const [isLocalhost, setIsLocalhost] = useState(false);
+
+  // Detect if running on localhost
+  useEffect(() => {
+    const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+    setIsLocalhost(isLocal);
+  }, []);
+
+  // In development (localhost), skip the backend check - always show the real form
+  const shouldShowFallback = isLocalhost ? false : (!convexReady || isProbing);
+
+  // Only show fallback if backend is not ready and not on localhost
+  if (shouldShowFallback) {
+    return (
+      <div
+        className="min-h-screen bg-cover bg-fixed bg-center bg-no-repeat flex items-center justify-center px-4 py-12 pt-24"
+        style={{ backgroundImage: "url(/bg-course.png)", backgroundColor: "#f8fafc" }}
+      >
+        <div className="absolute top-0 right-0 w-96 h-96 bg-[#a62a26]/5 rounded-full -mr-48 -mt-48" />
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#a62a26]/5 rounded-full -ml-48 -mb-48" />
+
+        <div className="w-full max-w-md relative z-10">
+          <div className="mb-8 flex flex-col items-center">
+            <div className="mb-6 p-4 bg-white rounded-2xl shadow-lg transform hover:scale-105 transition-transform">
+              <Image
+                src="/hdp-logo.png"
+                alt="HDP Edu"
+                width={150}
+                height={50}
+                className="h-12 w-auto"
+                priority
+              />
+            </div>
+            <h1 className="text-3xl font-black text-[#a62a26] text-center tracking-tight">
+              HDP EDU
+            </h1>
+          </div>
+
+          <RealAuthForm />
+
+          <p className="mt-8 text-center text-slate-400 text-xs font-medium">
+            &copy; 2026 HDP EDU. Secure Student Portal.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -257,8 +358,7 @@ export default function AuthPage() {
           </h1>
         </div>
 
-        {/* Auth disabled; always show fallback */}
-        <FallbackAuthForm />
+        <RealAuthForm />
 
         <p className="mt-8 text-center text-slate-400 text-xs font-medium">
           &copy; 2026 HDP EDU. Secure Student Portal.
