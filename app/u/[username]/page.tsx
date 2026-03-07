@@ -41,6 +41,7 @@ export default function ProfilePage() {
     api.profiles.getByUsername,
     username ? { username } : "skip"
   );
+  const currentProfile = useQuery(api.profiles.getCurrentUserProfile, {});
   
   // Determine if we're in a loading state
   // Show loading spinner while auth is loading or profile query is pending
@@ -49,9 +50,9 @@ export default function ProfilePage() {
 
   const isOwnProfile =
     isAuthenticated &&
-    currentUser &&
+    currentProfile &&
     profile &&
-    currentUser.name === profile.displayName;
+    currentProfile.userId === profile.userId;
 
   // Initialize form data with profile data whenever profile changes
   // This ensures the form always reflects the latest database state

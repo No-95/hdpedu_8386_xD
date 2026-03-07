@@ -29,6 +29,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/lib/language-context";
 import { useUser } from "@/lib/user-context";
 import { courses } from "@/lib/data";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -39,8 +41,10 @@ export default function DashboardPage() {
   const { user, isAuthenticated, isLoading, signOut } = useUser();
   const router = useRouter();
 
-  // Safe profile link fallback that does not depend on Convex during prerender.
-  const profileUsername = user?.email?.split("@")[0] || "";
+  const currentProfile = useQuery(api.profiles.getCurrentUserProfile, {});
+
+  // Prefer canonical username from profiles table. Fallback to email prefix if needed.
+  const profileUsername = currentProfile?.username || user?.email?.split("@")[0] || "";
   const canEditProfile = profileUsername.length > 0;
   
   // Track if we have ever loaded data once to avoid "flicker"
