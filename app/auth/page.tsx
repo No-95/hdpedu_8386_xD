@@ -12,12 +12,15 @@ import { useLanguage } from "@/lib/language-context";
 import { useConvexReady, useConvexProbing } from "@/app/ConvexClientProvider";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/lib/user-context";
+import { useAuthActions } from "@convex-dev/auth/react";
 
 
 /* ── Real Auth Form ── */
 function RealAuthForm() {
   const router = useRouter();
   const { refreshAuth } = useUser();
+  const convexReady = useConvexReady();
+  const { signIn } = useAuthActions();
   
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
@@ -54,37 +57,35 @@ function RealAuthForm() {
         return;
       }
 
-      // Create FormData for submission
-      const formDataToSend = new FormData();
-      formDataToSend.append("email", formData.email);
-      formDataToSend.append("password", formData.password);
-      formDataToSend.append("flow", isLogin ? "signin" : "signup");
-      if (!isLogin) {
-        formDataToSend.append("name", formData.fullName);
+      if (!convexReady) {
+        setError("Authentication service is not ready. Please set NEXT_PUBLIC_CONVEX_URL and CONVEX_SITE_URL.");
+        setLoading(false);
+        return;
       }
-      formDataToSend.append("redirect_uri", "/dashboard");
 
-      // Submit to our Next.js API endpoint
-      const response = await fetch("/api/auth", {
-        method: "POST",
-        body: formDataToSend,
-        credentials: "include",
+      const email = formData.email.trim().toLowerCase();
+      const result = await signIn("password", {
+        flow: isLogin ? "signIn" : "signUp",
+        email,
+        password: formData.password,
+        ...(isLogin ? {} : { name: formData.fullName.trim() }),
       });
 
-      const result = await response.json();
-
-      if (result.success) {
-        // Keep client auth state in sync immediately, then navigate.
-        refreshAuth();
-        if (typeof window !== "undefined") {
-          window.dispatchEvent(new Event("auth-state-changed"));
-        }
-        router.replace(result.redirect || "/dashboard");
-        router.refresh();
-      } else {
-        setError(result.error || "Authentication failed");
+      if (!result.signingIn) {
+        setError("Authentication failed");
         setLoading(false);
+        return;
       }
+
+      document.cookie = `auth_session=${encodeURIComponent(email)}; max-age=${60 * 60 * 24 * 7}; path=/; samesite=lax`;
+
+      // Keep client auth state in sync immediately, then navigate.
+      refreshAuth();
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("auth-state-changed"));
+      }
+      router.replace("/dashboard");
+      router.refresh();
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : "Connection error";
       console.error("Auth error:", err);

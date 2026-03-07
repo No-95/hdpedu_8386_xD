@@ -6,7 +6,8 @@ import {
   useContext,
   useMemo,
 } from "react";
-import { ConvexReactClient, ConvexProvider } from "convex/react";
+import { ConvexReactClient } from "convex/react";
+import { ConvexAuthProvider } from "@convex-dev/auth/react";
 
 /* ── Contexts ── */
 const ConvexReadyContext = createContext<boolean>(false);
@@ -36,15 +37,15 @@ export function ConvexClientProvider({ children }: { children: ReactNode }) {
   // Convex-enabled mode.
   if (convex) {
     return (
-      <ConvexProvider client={convex}>
+      <ConvexAuthProvider client={convex}>
         <ConvexProbingContext value={false}>
-          <ConvexAuthAvailableContext value={false}>
+          <ConvexAuthAvailableContext value={true}>
             <ConvexReadyContext value={true}>
               {children}
             </ConvexReadyContext>
           </ConvexAuthAvailableContext>
         </ConvexProbingContext>
-      </ConvexProvider>
+      </ConvexAuthProvider>
     );
   }
 
