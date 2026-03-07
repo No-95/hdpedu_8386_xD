@@ -46,11 +46,9 @@ function convexPostToBlogPost(post: any): BlogPost {
 function ConvexFeed({
   displayName,
   isAuthenticated,
-  userEmail,
 }: {
   displayName: string
   isAuthenticated: boolean
-  userEmail?: string
 }) {
   const {
     results: convexPosts,
@@ -62,6 +60,7 @@ function ConvexFeed({
   const toggleLikeMut = useMutation(api.posts.toggleLike)
 
   const [isPosting, setIsPosting] = useState(false)
+  const [feedError, setFeedError] = useState<string | null>(null)
   const sentinelRef = useRef<HTMLDivElement>(null)
 
   const hasConvexPosts = convexPosts && convexPosts.length > 0
@@ -76,16 +75,16 @@ function ConvexFeed({
   }) => {
     if (!isAuthenticated) return
     setIsPosting(true)
+    setFeedError(null)
     try {
       await createPost({
         content: data.content,
         mediaUrl: data.media_url,
         mediaType: data.media_type,
-        authorEmail: userEmail,
-        authorName: displayName,
       })
     } catch (err) {
       console.warn("Failed to create post:", err)
+      setFeedError(err instanceof Error ? err.message : "Failed to create post")
     } finally {
       setIsPosting(false)
     }
@@ -93,14 +92,14 @@ function ConvexFeed({
 
   const handleLike = async (postId: string) => {
     if (!isAuthenticated) return
+    setFeedError(null)
     try {
       await toggleLikeMut({
         postId: postId as any,
-        actorEmail: userEmail,
-        actorName: displayName,
       })
     } catch (err) {
       console.warn("Failed to toggle like:", err)
+      setFeedError(err instanceof Error ? err.message : "Failed to update like")
     }
   }
 
@@ -126,6 +125,12 @@ function ConvexFeed({
       )}
 
       <div className="mt-4 space-y-4">
+        {feedError && (
+          <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+            {feedError}
+          </div>
+        )}
+
         {posts.map((post) => (
           <PostCard key={post.id} post={post} onLike={handleLike} />
         ))}
@@ -250,7 +255,6 @@ export default function BlogPage() {
   const { user, isAuthenticated, isLoading: authLoading } = useUser()
   const convexReady = useConvexReady()
   const displayName = user.name || user.email?.split("@")[0] || "Guest"
-  const userEmail = user.email || ""
   const isLoading = authLoading
 
   const showAuthGate = !authLoading && !isAuthenticated
@@ -292,7 +296,6 @@ export default function BlogPage() {
               <ConvexFeed
                 displayName={displayName}
                 isAuthenticated={isAuthenticated}
-                userEmail={userEmail}
               />
             ) : (
               <FallbackFeed displayName={displayName} isAuthenticated={isAuthenticated} />

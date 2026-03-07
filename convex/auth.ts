@@ -20,10 +20,16 @@ export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
       const existing = await (ctx.db as any)
         .query("profiles")
         .withIndex("by_userId", (q: any) => q.eq("userId", userId))
-        .unique();
+        .first();
       if (existing) return;
 
       const user = await ctx.db.get(userId);
+      if (!user) {
+        // Avoid breaking auth flow if profile bootstrapping races user persistence.
+        console.warn(`Auth callback could not load user ${String(userId)} for profile bootstrap`);
+        return;
+      }
+
       // Use the name from the auth user, fallback to email prefix, never just "Student"
       const name = user?.name && user.name !== "Student" 
         ? user.name 

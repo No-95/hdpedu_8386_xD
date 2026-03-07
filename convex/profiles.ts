@@ -66,7 +66,7 @@ export const updateProfile = mutation({
     const profile = await ctx.db
       .query("profiles")
       .withIndex("by_userId", (q) => q.eq("userId", userId))
-      .unique();
+      .first();
 
     if (!profile) {
       throw new Error("Profile not found");
@@ -137,7 +137,7 @@ export const getCurrentUserProfile = query({
     const profile = await ctx.db
       .query("profiles")
       .withIndex("by_userId", (q) => q.eq("userId", userId))
-      .unique();
+      .first();
 
     if (!profile) return null;
 
@@ -169,7 +169,7 @@ export const upsertProfile = mutation({
     const existing = await ctx.db
       .query("profiles")
       .withIndex("by_userId", (q) => q.eq("userId", userId))
-      .unique();
+      .first();
 
     const username =
       args.username ||

@@ -4,31 +4,21 @@ import { getAuthUserId } from "@convex-dev/auth/server";
 import { v } from "convex/values";
 import type { Doc, Id } from "./_generated/dataModel";
 
-async function resolveActorUserId(
-  ctx: any,
-  fallbackEmail?: string,
-  fallbackName?: string
-): Promise<Id<"users"> | null> {
+async function resolveActorUserId(ctx: any): Promise<Id<"users"> | null> {
   try {
     const authUserId = (await getAuthUserId(ctx)) as Id<"users"> | null;
     if (authUserId) return authUserId;
   } catch {
-    // Ignore and try fallback identity.
+    // Ignore and report not authenticated below.
   }
+  return null;
+}
 
-  const email = (fallbackEmail || "").trim().toLowerCase();
-  if (!email) return null;
-
-  const existing = await ctx.db
-    .query("users")
-    .filter((q: any) => q.eq(q.field("email"), email))
+async function findProfileByUserId(ctx: any, userId: Id<"users">) {
+  return await ctx.db
+    .query("profiles")
+    .withIndex("by_userId", (q: any) => q.eq("userId", userId))
     .first();
-  if (existing?._id) return existing._id;
-
-  return (await ctx.db.insert("users", {
-    email,
-    name: (fallbackName || email.split("@")[0] || "User").trim(),
-  })) as Id<"users">;
 }
 
 /* ── Helper: enrich posts with author profile + like data ── */
@@ -41,10 +31,7 @@ async function enrichPost(
   const user = await ctx.db.get(post.userId);
 
   // Fetch author profile from profiles table
-  const profile = await ctx.db
-    .query("profiles")
-    .withIndex("by_userId", (q: any) => q.eq("userId", post.userId))
-    .unique();
+  const profile = await findProfileByUserId(ctx, post.userId);
 
   // Build author object with fallback logic
   // Use displayName from profile, fall back to user.name, then "User"
@@ -135,11 +122,9 @@ export const create = mutation({
     content: v.string(),
     mediaUrl: v.optional(v.string()),
     mediaType: v.optional(v.union(v.literal("image"), v.literal("video"))),
-    authorEmail: v.optional(v.string()),
-    authorName: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const userId = await resolveActorUserId(ctx, args.authorEmail, args.authorName);
+    const userId = await resolveActorUserId(ctx);
     if (!userId) throw new Error("Not authenticated");
 
     return await ctx.db.insert("posts", {
@@ -157,11 +142,9 @@ export const create = mutation({
 export const toggleLike = mutation({
   args: {
     postId: v.id("posts"),
-    actorEmail: v.optional(v.string()),
-    actorName: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const userId = await resolveActorUserId(ctx, args.actorEmail, args.actorName);
+    const userId = await resolveActorUserId(ctx);
     if (!userId) throw new Error("Not authenticated");
 
     const existing = await ctx.db
@@ -188,11 +171,9 @@ export const toggleLike = mutation({
 export const sharePost = mutation({
   args: {
     postId: v.id("posts"),
-    actorEmail: v.optional(v.string()),
-    actorName: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const userId = await resolveActorUserId(ctx, args.actorEmail, args.actorName);
+    const userId = await resolveActorUserId(ctx);
     if (!userId) throw new Error("Not authenticated");
 
     const existing = await ctx.db
@@ -229,11 +210,9 @@ export const addComment = mutation({
   args: {
     postId: v.id("posts"),
     content: v.string(),
-    actorEmail: v.optional(v.string()),
-    actorName: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const userId = await resolveActorUserId(ctx, args.actorEmail, args.actorName);
+    const userId = await resolveActorUserId(ctx);
 
     if (!userId) throw new Error("Not authenticated");
 
@@ -264,10 +243,7 @@ export const getComments = query({
         const user = await ctx.db.get(comment.userId);
 
         // Fetch author profile from profiles table
-        const profile = await ctx.db
-          .query("profiles")
-          .withIndex("by_userId", (q) => q.eq("userId", comment.userId))
-          .unique();
+        const profile = await findProfileByUserId(ctx, comment.userId);
 
         // Count likes on this comment
         const likes = await ctx.db

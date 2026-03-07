@@ -24,7 +24,7 @@ export const currentUser = query({
     const profile = await ctx.db
       .query("profiles")
       .withIndex("by_userId", (q) => q.eq("userId", userId))
-      .unique();
+      .first();
 
     if (profile) {
       // Resolve storageId to a real URL

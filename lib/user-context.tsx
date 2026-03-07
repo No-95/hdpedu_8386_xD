@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from "react"
 import { User } from "./types"
 import { mockUser } from "./data"
+import { useAuthToken } from "@convex-dev/auth/react"
 
 
 interface UserContextType {
@@ -23,6 +24,7 @@ const UserContext = createContext<UserContextType | undefined>(undefined)
 function ConvexUserProvider({ children }: { children: ReactNode }) {
   const [isInitialLoad, setIsInitialLoad] = useState(true)
   const [cookieAuth, setCookieAuth] = useState<string | null>(null)
+  const authToken = useAuthToken()
 
   const refreshAuth = useCallback(() => {
     if (typeof document === "undefined") return
@@ -61,7 +63,7 @@ function ConvexUserProvider({ children }: { children: ReactNode }) {
     setIsInitialLoad(false)
   }, [])
 
-  const isAuthenticated = cookieAuth !== null
+  const isAuthenticated = !!authToken || cookieAuth !== null
   
   const user: User & { avatarUrl?: string } = cookieAuth
     ? {
