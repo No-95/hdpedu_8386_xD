@@ -182,14 +182,14 @@ export default function HomePage() {
         }}
       />
       {/* Premium Welcome Section */}
-      <section className="relative overflow-hidden py-20 md:py-32 border-b light:bg-white/15 dark:bg-[#000814]/50" style={{ borderColor: 'rgba(166, 42, 38, 0.2)' }}>
+      <section className="relative overflow-hidden py-20 md:py-32 border-b light:bg-white/15 dark:bg-transparent" style={{ borderColor: 'rgba(166, 42, 38, 0.2)' }}>
         <div className="absolute inset-0 opacity-30">
           <motion.div className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-blue-500/20 to-transparent rounded-full blur-3xl" animate={{ y: [0, 30, 0], x: [0, 20, 0] }} transition={{ duration: 8, repeat: Infinity }} />
           <motion.div className="absolute bottom-0 right-0 w-96 h-96 bg-gradient-to-bl from-purple-500/20 to-transparent rounded-full blur-3xl" animate={{ y: [0, -30, 0], x: [0, -20, 0] }} transition={{ duration: 8, repeat: Infinity, delay: 1 }} />
         </div>
         <div className="mx-auto max-w-6xl px-6 relative z-10">
           <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8 }} className="text-center">
-            <motion.div className="inline-flex items-center gap-2 mb-6 px-5 py-3 rounded-full border light:bg-white/60 dark:bg-[#000814]/60" style={{ borderColor: '#a62a26' }} animate={{ y: [0, -5, 0] }} transition={{ duration: 3, repeat: Infinity }}>
+            <motion.div className="inline-flex items-center gap-2 mb-6 px-5 py-3 rounded-full border light:bg-white/60 dark:bg-transparent" style={{ borderColor: '#a62a26' }} animate={{ y: [0, -5, 0] }} transition={{ duration: 3, repeat: Infinity }}>
               <Sparkles className="h-4 w-4 text-[#a62a26] dark:text-white" />
               <span className="text-xs font-semibold uppercase tracking-widest text-[#a62a26] dark:text-white">당신의 경력 게이트웨이</span>
             </motion.div>
@@ -213,23 +213,26 @@ export default function HomePage() {
       </section>
 
       {/* Hero Section with Dynamic CTA */}
-      <section className="py-20 md:py-28 border-b light:bg-white/30 dark:bg-[#000814]/30" style={{ borderColor: 'rgba(166, 42, 38, 0.2)' }}>
+      <section className="py-20 md:py-28 border-b light:bg-white/30 dark:bg-transparent" style={{ borderColor: 'rgba(166, 42, 38, 0.2)' }}>
         <div className="mx-auto max-w-6xl px-6">
-          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="grid md:grid-cols-2 gap-12 items-center">
+          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="grid md:grid-cols-2 gap-12 items-center rounded-3xl border border-[#a62a26]/35 p-8 md:p-12 backdrop-blur-xl light:bg-[#a62a26]/18 dark:bg-transparent">
             <div>
-              <motion.h2 className="text-5xl md:text-6xl font-black mb-8 leading-tight text-[#a62a26] dark:text-white" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+              <motion.div className="inline-flex items-center gap-2 mb-5 px-4 py-2 rounded-full border border-[#a62a26]/40 light:bg-[#a62a26]/25 dark:bg-transparent" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+                <Globe className="h-4 w-4 text-[#a62a26] dark:text-white" />
+                <span className="text-xs font-bold uppercase tracking-[0.18em] text-[#a62a26] dark:text-white">Career Focused Korean Learning</span>
+              </motion.div>
+              <motion.h2 className="text-4xl md:text-5xl font-black mb-6 leading-tight text-[#a62a26] dark:text-white" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
                 {t("hero").title}
               </motion.h2>
-              <motion.p className="text-xl mb-6 leading-relaxed text-slate-800 dark:text-white" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+              <motion.p className="text-lg mb-5 leading-relaxed text-slate-900 dark:text-white" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
                 {t("hero").description}
               </motion.p>
-              <motion.p className="text-base mb-8 leading-relaxed border-l-4 border-[#a62a26] pl-6 text-slate-700 dark:text-white/80 dark:border-white" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+              <motion.p className="text-base mb-8 leading-relaxed border-l-4 border-[#a62a26] pl-5 text-slate-800 dark:text-white/85 dark:border-white" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
                 {t("hero").subtext}
               </motion.p>
-              <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
+              <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
                 <Button asChild size="lg" className="group bg-[#a62a26] text-white hover:bg-[#8e2420] dark:bg-white dark:text-[#000814] dark:hover:bg-white/90 shadow-2xl transition-all font-bold text-base px-8 py-6">
                   <Link href="/courses">
-                    {/* Fixed: Wrapped icon and text in a span to provide a single React element child */}
                     <span className="flex items-center gap-3 dark:text-[#000814]">
                       {t("hero").cta}
                       <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
@@ -238,24 +241,25 @@ export default function HomePage() {
                 </Button>
               </motion.div>
             </div>
-            
-            <motion.div initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2, duration: 0.8 }} className="relative h-96 hidden md:flex items-center justify-center">
-              <Image src="/hdp-logo.png" alt="Logo" width={400} height={400} className="object-contain drop-shadow-2xl" />
+
+            <motion.div initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3, duration: 0.8 }} className="relative h-96 hidden md:flex items-center justify-center">
+              <div className="absolute inset-8 rounded-3xl border border-[#a62a26]/30 light:bg-[#a62a26]/14 dark:bg-transparent backdrop-blur-md" />
+              <Image src="/hdp-logo.png" alt="Logo" width={390} height={390} className="object-contain drop-shadow-2xl relative z-10" />
             </motion.div>
           </motion.div>
         </div>
       </section>
 
       {/* Stats Section */}
-      <section className="py-16 md:py-24 border-b light:bg-white/20 dark:bg-[#000814]/20" style={{ borderColor: 'rgba(166, 42, 38, 0.2)' }}>
+      <section className="py-16 md:py-24 border-b light:bg-white/20 dark:bg-transparent" style={{ borderColor: 'rgba(166, 42, 38, 0.2)' }}>
         <div className="mx-auto max-w-6xl px-6">
           <motion.div variants={containerVariants} initial="hidden" whileInView="visible" className="grid md:grid-cols-4 gap-6">
             {t("stats").items.map((stat: any, index: number) => (
-              <motion.div key={index} variants={itemVariants} className="text-center p-8 rounded-2xl backdrop-blur-md border border-white/15 hover:border-[#a62a26]/30 transition-all group light:bg-white/80 dark:bg-[#000814]/80" style={{ borderColor: 'rgba(166, 42, 38, 0.2)' }}>
-                <motion.div className="text-5xl font-black text-[#a62a26] dark:text-white mb-3" animate={{ scale: [1, 1.05, 1] }} transition={{ duration: 2, repeat: Infinity }}>
+              <motion.div key={index} variants={itemVariants} className="text-center p-8 rounded-2xl backdrop-blur-xl border border-[#a62a26]/45 hover:border-[#a62a26]/80 transition-all group light:bg-[#a62a26]/32 dark:bg-transparent" style={{ borderColor: 'rgba(166, 42, 38, 0.35)' }}>
+                <motion.div className="text-5xl font-black text-black dark:text-white mb-3" animate={{ scale: [1, 1.05, 1] }} transition={{ duration: 2, repeat: Infinity }}>
                   {stat.number}
                 </motion.div>
-                <p className="font-semibold text-slate-600 dark:text-white uppercase tracking-wider text-sm">{stat.label}</p>
+                <p className="font-semibold text-black dark:text-white uppercase tracking-wider text-sm">{stat.label}</p>
               </motion.div>
             ))}
           </motion.div>
@@ -263,7 +267,7 @@ export default function HomePage() {
       </section>
 
       {/* What You'll Learn */}
-      <section className="py-24 md:py-32 border-b light:bg-white/50 dark:bg-[#000814]/50" style={{ borderColor: 'rgba(166, 42, 38, 0.2)' }}>
+      <section className="py-24 md:py-32 border-b light:bg-white/50 dark:bg-transparent" style={{ borderColor: 'rgba(166, 42, 38, 0.2)' }}>
         <div className="mx-auto max-w-6xl px-6">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="mb-20 text-center">
             <h2 className="text-5xl md:text-6xl font-black mb-4 text-[#a62a26] dark:text-white">{t("whatYouLearn").title}</h2>
@@ -273,12 +277,12 @@ export default function HomePage() {
           <motion.div variants={containerVariants} initial="hidden" whileInView="visible" className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {t("whatYouLearn").items.map((item: any, index: number) => (
               <motion.div key={index} variants={itemVariants} whileHover={{ y: -8 }} className="group">
-                <Card className="backdrop-blur-md border-white/40 h-full hover:border-[#a62a26]/40 transition-all shadow-lg light:bg-white/90 dark:bg-[#000814]/90 dark:border-white/20">
+                <Card className="backdrop-blur-xl border-[#a62a26]/45 h-full hover:border-[#a62a26]/80 transition-all shadow-lg light:bg-[#a62a26]/32 dark:bg-transparent dark:border-white/20">
                   <CardContent className="p-8">
-                    <motion.div className="p-4 w-fit rounded-2xl mb-4 light:bg-[#a62a26]/10 light:text-[#a62a26] dark:bg-white/20 dark:text-white">
+                    <motion.div className="p-4 w-fit rounded-2xl mb-4 light:bg-black/10 light:text-black dark:bg-white/20 dark:text-white">
                       <CheckCircle2 className="h-8 w-8" />
                     </motion.div>
-                    <p className="leading-relaxed text-lg font-semibold text-slate-800 dark:text-white">{item}</p>
+                    <p className="leading-relaxed text-lg font-semibold text-black dark:text-white">{item}</p>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -288,7 +292,7 @@ export default function HomePage() {
       </section>
 
       {/* Learning Journey Timeline */}
-      <section className="py-24 md:py-32 border-b light:bg-white/20 dark:bg-[#000814]/20" style={{ borderColor: 'rgba(166, 42, 38, 0.2)' }}>
+      <section className="py-24 md:py-32 border-b light:bg-white/20 dark:bg-transparent" style={{ borderColor: 'rgba(166, 42, 38, 0.2)' }}>
         <div className="mx-auto max-w-6xl px-6">
           <motion.h2 className="text-5xl md:text-6xl font-black mb-20 text-center text-[#a62a26] dark:text-white" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}>
             {t("journey").title}
@@ -297,12 +301,12 @@ export default function HomePage() {
           <motion.div variants={containerVariants} initial="hidden" whileInView="visible" className="grid md:grid-cols-4 gap-6 relative">
             {t("journey").steps.map((step: any, index: number) => (
               <motion.div key={index} variants={itemVariants} className="relative">
-                <div className="rounded-2xl p-8 backdrop-blur-md border border-white/40 shadow-xl hover:border-[#a62a26]/40 transition-all group h-full light:bg-white/80 dark:bg-[#000814]/80" style={{ borderColor: 'rgba(166, 42, 38, 0.2)' }}>
-                  <motion.div className="text-6xl font-black text-[#a62a26]/20 dark:text-white/20 mb-4" animate={{ opacity: [0.2, 0.5, 0.2] }} transition={{ duration: 3, repeat: Infinity, delay: index * 0.2 }}>
+                <div className="rounded-2xl p-8 backdrop-blur-xl border border-[#a62a26]/45 shadow-xl hover:border-[#a62a26]/80 transition-all group h-full light:bg-[#a62a26]/32 dark:bg-transparent" style={{ borderColor: 'rgba(166, 42, 38, 0.35)' }}>
+                  <motion.div className="text-6xl font-black text-black/25 dark:text-white/20 mb-4" animate={{ opacity: [0.2, 0.5, 0.2] }} transition={{ duration: 3, repeat: Infinity, delay: index * 0.2 }}>
                     {step.number}
                   </motion.div>
-                  <h3 className="text-2xl font-bold mb-3 text-[#a62a26] dark:text-white">{step.title}</h3>
-                  <p className="text-[#a62a26]/80 dark:text-white/80">{step.desc}</p>
+                  <h3 className="text-2xl font-bold mb-3 text-black dark:text-white">{step.title}</h3>
+                  <p className="text-black/85 dark:text-white/80">{step.desc}</p>
                 </div>
               </motion.div>
             ))}
@@ -311,7 +315,7 @@ export default function HomePage() {
       </section>
 
       {/* Training Programs with Gradients */}
-      <section className="py-24 md:py-32 border-b light:bg-slate-50/50 dark:bg-[#000814]/50" style={{ borderColor: 'rgba(166, 42, 38, 0.2)' }}>
+      <section className="py-24 md:py-32 border-b light:bg-slate-50/50 dark:bg-transparent" style={{ borderColor: 'rgba(166, 42, 38, 0.2)' }}>
         <div className="mx-auto max-w-6xl px-6">
           <motion.h2 className="text-5xl md:text-6xl font-black mb-20 text-center text-[#a62a26] dark:text-white" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}>
             {t("trainingFields").title}
@@ -322,12 +326,12 @@ export default function HomePage() {
               const IconComponent = item.icon
               return (
                 <motion.div key={index} variants={itemVariants} whileHover={{ y: -12 }} className="group">
-                  <div className={`rounded-3xl p-12 backdrop-blur-md border border-white/40 shadow-2xl transition-all h-full light:bg-white/90 dark:bg-[#000814]/90`} style={{ borderColor: 'rgba(166, 42, 38, 0.2)' }}>
-                    <motion.div className="w-fit p-5 rounded-2xl mb-6 light:bg-[#a62a26] light:text-white dark:bg-white dark:text-[#000814]">
+                  <div className={`rounded-3xl p-12 backdrop-blur-xl border border-[#a62a26]/45 shadow-2xl transition-all h-full light:bg-[#a62a26]/32 dark:bg-transparent`} style={{ borderColor: 'rgba(166, 42, 38, 0.35)' }}>
+                    <motion.div className="w-fit p-5 rounded-2xl mb-6 light:bg-black/90 light:text-white dark:bg-white dark:text-[#000814]">
                       <IconComponent className="h-10 w-10" />
                     </motion.div>
-                    <h3 className="text-3xl font-bold mb-4 text-slate-900 dark:text-white">{item.title}</h3>
-                    <p className="text-lg leading-relaxed text-slate-600 dark:text-white/80">{item.desc}</p>
+                    <h3 className="text-3xl font-bold mb-4 text-black dark:text-white">{item.title}</h3>
+                    <p className="text-lg leading-relaxed text-black/85 dark:text-white/80">{item.desc}</p>
                   </div>
                 </motion.div>
               )
@@ -337,7 +341,7 @@ export default function HomePage() {
       </section>
 
       {/* Benefits Grid */}
-      <section className="py-24 md:py-32 border-b light:bg-white/20 dark:bg-[#000814]/20" style={{ borderColor: 'rgba(166, 42, 38, 0.2)' }}>
+      <section className="py-24 md:py-32 border-b light:bg-white/20 dark:bg-transparent" style={{ borderColor: 'rgba(166, 42, 38, 0.2)' }}>
         <div className="mx-auto max-w-6xl px-6">
           <motion.h2 className="text-5xl md:text-6xl font-black mb-20 text-center text-[#a62a26] dark:text-white" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}>
             {t("benefits").title}
@@ -347,13 +351,13 @@ export default function HomePage() {
             {t("benefits").items.map((benefit: any, index: number) => {
               const IconComponent = benefit.icon
               return (
-                <motion.div key={index} variants={itemVariants} whileHover={{ scale: 1.05 }} className="p-8 rounded-2xl backdrop-blur-md border border-[#a62a26]/10 shadow-lg transition-all text-center group light:bg-white/90 dark:bg-[#000814]/90" style={{ borderColor: 'rgba(166, 42, 38, 0.2)' }}>
+                <motion.div key={index} variants={itemVariants} whileHover={{ scale: 1.05 }} className="p-8 rounded-2xl backdrop-blur-xl border border-[#a62a26]/45 shadow-lg transition-all text-center group light:bg-[#a62a26]/32 dark:bg-transparent" style={{ borderColor: 'rgba(166, 42, 38, 0.35)' }}>
                   <motion.div className="flex justify-center mb-4">
-                    <div className="p-4 rounded-full light:bg-[#a62a26]/10 light:text-[#a62a26] dark:bg-white/20 dark:text-white group-hover:light:bg-[#a62a26] group-hover:light:text-white group-hover:dark:bg-white group-hover:dark:text-[#000814] transition-all">
+                    <div className="p-4 rounded-full light:bg-black/10 light:text-black dark:bg-white/20 dark:text-white group-hover:light:bg-black group-hover:light:text-white group-hover:dark:bg-white group-hover:dark:text-[#000814] transition-all">
                       <IconComponent className="h-8 w-8" />
                     </div>
                   </motion.div>
-                  <p className="font-semibold text-lg text-slate-800 dark:text-white">{benefit.text}</p>
+                  <p className="font-semibold text-lg text-black dark:text-white">{benefit.text}</p>
                 </motion.div>
               )
             })}
@@ -365,9 +369,9 @@ export default function HomePage() {
       <ImageCarousel />
 
       {/* Premium CTA Section */}
-      <section className="py-24 md:py-32 light:bg-white/10 dark:bg-[#000814]/10">
+      <section className="py-24 md:py-32 light:bg-white/10 dark:bg-transparent">
         <div className="mx-auto max-w-6xl px-6">
-          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="relative overflow-hidden rounded-3xl p-12 md:p-24 backdrop-blur-md border text-center shadow-2xl light:bg-white/90 dark:bg-[#000814]/90" style={{ borderColor: 'rgba(166, 42, 38, 0.2)' }}>
+          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="relative overflow-hidden rounded-3xl p-12 md:p-24 backdrop-blur-md border text-center shadow-2xl light:bg-white/90 dark:bg-transparent" style={{ borderColor: 'rgba(166, 42, 38, 0.2)' }}>
             <div className="relative z-10 max-w-3xl mx-auto">
               <motion.h2 className="text-5xl md:text-6xl font-black mb-8 leading-tight text-[#a62a26] dark:text-white" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
                 {t("cta").title}
