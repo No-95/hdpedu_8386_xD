@@ -2,9 +2,14 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useAction } from "convex/react";
+import { useMutation } from "convex/react";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { useLanguage } from "@/lib/language-context";
+import { api } from "@/convex/_generated/api";
+
+const registrationEmailApi = (api as any).registrationEmails;
 
 export default function RegisterFormPage() {
   const { language, t } = useLanguage();
@@ -22,6 +27,8 @@ export default function RegisterFormPage() {
   };
 
   const router = useRouter();
+  const createRegistration = useMutation(api.registrations.create);
+  const notifyRegistration = useAction(registrationEmailApi.notifyRegistration);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -34,26 +41,23 @@ export default function RegisterFormPage() {
     setError("");
     setLoading(true);
     try {
-      const emailRes = await fetch("/api/send-registration", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: form.name,
-          phone: form.phone,
-          address: form.address,
-          message: form.message,
-          sourcePath: "/publication/register-form",
-        }),
+      const sourcePath = "/publication/register-form";
+      const registrationId = await createRegistration({
+        name: form.name,
+        phone: form.phone,
+        address: form.address,
+        message: form.message,
+        sourcePath,
       });
 
-      const emailData = await emailRes.json().catch(() => ({}));
-      if (!emailRes.ok) {
-        const apiError =
-          typeof emailData?.error === "string" && emailData.error
-            ? emailData.error
-            : "Email failed";
-        throw new Error(apiError);
-      }
+      await notifyRegistration({
+        registrationId,
+        name: form.name,
+        phone: form.phone,
+        address: form.address,
+        message: form.message,
+        sourcePath,
+      });
 
       router.push("/publication/registration-confirmed");
     } catch (err) {
