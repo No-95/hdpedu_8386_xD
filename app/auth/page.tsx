@@ -14,6 +14,29 @@ import { useRouter } from "next/navigation";
 import { useUser } from "@/lib/user-context";
 import { useAuthActions } from "@convex-dev/auth/react";
 
+function extractAuthErrorDetails(err: unknown) {
+  if (!(err instanceof Error)) {
+    return { raw: err };
+  }
+
+  const candidate = err as Error & {
+    code?: string;
+    status?: number;
+    data?: unknown;
+    cause?: unknown;
+  };
+
+  return {
+    name: candidate.name,
+    message: candidate.message,
+    code: candidate.code,
+    status: candidate.status,
+    data: candidate.data,
+    cause: candidate.cause,
+    stack: candidate.stack,
+  };
+}
+
 
 /* ── Real Auth Form ── */
 function RealAuthForm() {
@@ -36,6 +59,9 @@ function RealAuthForm() {
     e.preventDefault();
     setError(null);
     setLoading(true);
+
+    const attemptedFlow = isLogin ? "signIn" : "signUp";
+    const attemptedEmail = formData.email.trim().toLowerCase();
 
     try {
       // Validate form data
@@ -63,10 +89,9 @@ function RealAuthForm() {
         return;
       }
 
-      const email = formData.email.trim().toLowerCase();
       const result = await signIn("password", {
-        flow: isLogin ? "signIn" : "signUp",
-        email,
+        flow: attemptedFlow,
+        email: attemptedEmail,
         password: formData.password,
         ...(isLogin ? {} : { name: formData.fullName.trim() }),
       });
@@ -77,7 +102,7 @@ function RealAuthForm() {
         return;
       }
 
-      document.cookie = `auth_session=${encodeURIComponent(email)}; max-age=${60 * 60 * 24 * 7}; path=/; samesite=lax`;
+      document.cookie = `auth_session=${encodeURIComponent(attemptedEmail)}; max-age=${60 * 60 * 24 * 7}; path=/; samesite=lax`;
 
       // Keep client auth state in sync immediately, then navigate.
       refreshAuth();
@@ -87,8 +112,18 @@ function RealAuthForm() {
       router.replace("/dashboard");
       router.refresh();
     } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : "Connection error";
-      console.error("Auth error:", err);
+      const details = extractAuthErrorDetails(err);
+      const errorMsg =
+        details && typeof details === "object" && "message" in details && typeof details.message === "string"
+          ? details.message
+          : "Authentication request failed";
+
+      console.error("[Auth signIn/signUp failed]", {
+        flow: attemptedFlow,
+        email: attemptedEmail,
+        details,
+      });
+
       setError(errorMsg);
       setLoading(false);
     }
