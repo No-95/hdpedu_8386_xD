@@ -51,7 +51,8 @@ export function resolveConvexCloudUrl(opts?: {
 
 export function resolveConvexCloudUrlForBrowser() {
   const host = typeof window !== "undefined" ? window.location.host : null;
-  return resolveConvexCloudUrl({ host, fallbackToDev: true });
+  const fallbackToDev = process.env.NODE_ENV !== "production" && isLocalHost(host);
+  return resolveConvexCloudUrl({ host, fallbackToDev });
 }
 
 export function resolveConvexSiteUrl() {

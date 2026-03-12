@@ -18,11 +18,19 @@ const ConvexProbingContext = createContext<boolean>(true);
 export const useConvexReady = () => useContext(ConvexReadyContext);
 export const useConvexAuthAvailable = () => useContext(ConvexAuthAvailableContext);
 export const useConvexProbing = () => useContext(ConvexProbingContext);
-
 export function ConvexClientProvider({ children }: { children: ReactNode }) {
   // Memoize the client so it's only created once
   const convex = useMemo(() => {
     const convexUrl = resolveConvexCloudUrlForBrowser();
+    if (typeof window !== "undefined") {
+      console.log("[Convex debug]", {
+        host: window.location.host,
+        nodeEnv: process.env.NODE_ENV,
+        nextPublicConvexUrl: process.env.NEXT_PUBLIC_CONVEX_URL,
+        resolvedConvexUrl: convexUrl,
+      });
+    }
+
     if (convexUrl && convexUrl.startsWith("https://")) {
       try {
         return new ConvexReactClient(convexUrl);
