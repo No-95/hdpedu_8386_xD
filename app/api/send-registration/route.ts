@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "@/convex/_generated/api";
+import { resolveConvexCloudUrl } from "@/lib/convex-env";
 
 export const runtime = "nodejs";
 
@@ -28,7 +29,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
+    const convexUrl = resolveConvexCloudUrl({ host: request.headers.get("host") });
     if (!convexUrl) {
       return NextResponse.json(
         {

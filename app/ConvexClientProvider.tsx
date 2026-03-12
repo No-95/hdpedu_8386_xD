@@ -8,6 +8,7 @@ import {
 } from "react";
 import { ConvexReactClient } from "convex/react";
 import { ConvexAuthProvider } from "@convex-dev/auth/react";
+import { resolveConvexCloudUrlForBrowser } from "@/lib/convex-env";
 
 /* ── Contexts ── */
 const ConvexReadyContext = createContext<boolean>(false);
@@ -18,11 +19,10 @@ export const useConvexReady = () => useContext(ConvexReadyContext);
 export const useConvexAuthAvailable = () => useContext(ConvexAuthAvailableContext);
 export const useConvexProbing = () => useContext(ConvexProbingContext);
 
-const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
-
 export function ConvexClientProvider({ children }: { children: ReactNode }) {
   // Memoize the client so it's only created once
   const convex = useMemo(() => {
+    const convexUrl = resolveConvexCloudUrlForBrowser();
     if (convexUrl && convexUrl.startsWith("https://")) {
       try {
         return new ConvexReactClient(convexUrl);
