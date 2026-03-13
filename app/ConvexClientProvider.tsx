@@ -10,6 +10,69 @@ import { ConvexReactClient } from "convex/react";
 import { ConvexAuthProvider } from "@convex-dev/auth/react";
 import { resolveConvexCloudUrlForBrowser } from "@/lib/convex-env";
 
+/**
+ * Flush stale @convex-dev/auth localStorage tokens.
+ *
+ * Two-stage cleanup:
+ * 1. Remove tokens for ANY namespace that is NOT the current deployment
+ *    (covers dev→prod migration: tokens from accomplished-flamingo-285 leaked
+ *    into a browser that now talks to adept-tapir-159).
+ * 2. One-time forced flush of the current deployment's own tokens (version
+ *    sentinel approach). This handles the case where we rotated JWKS /
+ *    JWT_PRIVATE_KEY in prod — old tokens signed with the previous key would
+ *    fail verification indefinitely. Bump FLUSH_VERSION to invalidate again.
+ *
+ * Token storage key format (from @convex-dev/auth/react):
+ *   `${keyName}_${namespace.replace(/[^a-zA-Z0-9]/g, "")}`
+ */
+const FLUSH_VERSION = "v2"; // bump this whenever JWKS/JWT_PRIVATE_KEY change in prod
+
+function flushStaleAuthTokens(currentUrl: string) {
+  if (typeof window === "undefined") return;
+
+  const currentNamespace = currentUrl.replace(/[^a-zA-Z0-9]/g, "");
+  const AUTH_PREFIXES = [
+    "__convexAuthJWT_",
+    "__convexAuthRefreshToken_",
+    "__convexAuthOAuthVerifier_",
+    "__convexAuthServerStateFetchTime_",
+  ];
+
+  // 1. Remove tokens from OTHER deployment namespaces.
+  const keysToRemove: string[] = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (!key) continue;
+    const matchedPrefix = AUTH_PREFIXES.find((p) => key.startsWith(p));
+    if (!matchedPrefix) continue;
+    const keyNamespace = key.slice(matchedPrefix.length);
+    if (keyNamespace !== currentNamespace) {
+      keysToRemove.push(key);
+    }
+  }
+  if (keysToRemove.length > 0) {
+    console.log("[Convex] Removing tokens from stale deployments:", keysToRemove);
+    keysToRemove.forEach((k) => localStorage.removeItem(k));
+  }
+
+  // 2. One-time forced flush for the current namespace (after JWKS rotation).
+  const sentinelKey = `__convexAuthFlushed_${FLUSH_VERSION}_${currentNamespace}`;
+  if (!localStorage.getItem(sentinelKey)) {
+    const ownKeys = AUTH_PREFIXES.map((p) => `${p}${currentNamespace}`);
+    const removed = ownKeys.filter((k) => {
+      if (localStorage.getItem(k) !== null) {
+        localStorage.removeItem(k);
+        return true;
+      }
+      return false;
+    });
+    if (removed.length > 0) {
+      console.log("[Convex] One-time flush of current deployment tokens:", removed);
+    }
+    localStorage.setItem(sentinelKey, "1");
+  }
+}
+
 /* ── Contexts ── */
 const ConvexReadyContext = createContext<boolean>(false);
 const ConvexAuthAvailableContext = createContext<boolean>(false);
@@ -22,6 +85,11 @@ export function ConvexClientProvider({ children }: { children: ReactNode }) {
   // Memoize the client so it's only created once
   const convex = useMemo(() => {
     const convexUrl = resolveConvexCloudUrlForBrowser();
+
+    // Flush any stale auth tokens from other deployments on first render.
+    if (convexUrl) {
+      flushStaleAuthTokens(convexUrl);
+    }
     if (typeof window !== "undefined") {
       console.log("[Convex debug]", {
         host: window.location.host,
