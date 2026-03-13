@@ -9,6 +9,8 @@ import { useAuthActions, useAuthToken } from "@convex-dev/auth/react"
 interface UserContextType {
   user: User & { avatarUrl?: string }
   isAuthenticated: boolean
+  /** True only when a real Convex JWT is present — safe to call Convex mutations */
+  hasConvexToken: boolean
   isLoading: boolean
   isInitialLoad: boolean
   purchaseCourse: (courseId: string) => void
@@ -72,7 +74,8 @@ function ConvexUserProvider({ children }: { children: ReactNode }) {
   }, [authToken, cookieAuth])
 
   const isAuthenticated = !hasExplicitSignOut && (!!authToken || cookieAuth !== null)
-  
+  const hasConvexToken = !hasExplicitSignOut && !!authToken
+
   const user: User & { avatarUrl?: string } = cookieAuth
     ? {
         name: cookieAuth.split("@")[0],
@@ -123,6 +126,7 @@ function ConvexUserProvider({ children }: { children: ReactNode }) {
       value={{
         user,
         isAuthenticated,
+        hasConvexToken,
         isLoading: isInitialLoad,
         isInitialLoad,
         purchaseCourse,

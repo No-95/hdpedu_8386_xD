@@ -8,8 +8,8 @@ async function resolveActorUserId(ctx: any): Promise<Id<"users"> | null> {
   try {
     const authUserId = (await getAuthUserId(ctx)) as Id<"users"> | null;
     if (authUserId) return authUserId;
-  } catch {
-    // Ignore and report not authenticated below.
+  } catch (err) {
+    console.error("[resolveActorUserId] Auth token verification failed:", err instanceof Error ? err.message : String(err));
   }
   return null;
 }
@@ -63,6 +63,47 @@ async function enrichPost(
     .withIndex("by_post", (q: any) => q.eq("postId", post._id))
     .collect();
 
+  const comments = await ctx.db
+    .query("postComments")
+    .withIndex("by_post", (q: any) => q.eq("postId", post._id))
+    .collect();
+
+  const enrichedComments = await Promise.all(
+    comments.map(async (comment: any) => {
+      const commentUser = await ctx.db.get(comment.userId);
+      const commentProfile = await findProfileByUserId(ctx, comment.userId);
+      const commentLikes = await ctx.db
+        .query("commentLikes")
+        .withIndex("by_comment", (q: any) => q.eq("commentId", comment._id))
+        .collect();
+
+      return {
+        _id: comment._id,
+        _creationTime: comment._creationTime,
+        content: comment.content,
+        userId: comment.userId,
+        likes: commentLikes.length,
+        author: commentProfile
+          ? {
+              name: commentProfile.displayName,
+              username: commentProfile.username,
+              avatarUrl: commentProfile.avatarUrl || undefined,
+              bio: commentProfile.bio || "",
+              role: (commentProfile.role || "Student") as string,
+              subjects: commentProfile.subjects || [],
+            }
+          : {
+              name: commentUser?.name || "User",
+              username: "user",
+              avatarUrl: commentUser?.image || undefined,
+              bio: "",
+              role: "Student",
+              subjects: [],
+            },
+      };
+    })
+  );
+
   // Determine whether current user has liked
   let liked = false;
   if (currentUserId) {
@@ -85,6 +126,7 @@ async function enrichPost(
     author,
     likeCount: likes.length,
     shareCount: shares.length,
+    comments: enrichedComments,
     liked,
   };
 }

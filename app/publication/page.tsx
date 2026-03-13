@@ -138,7 +138,7 @@ export default function PublicationPage() {
         <section className="py-12">
           <div className="mx-auto max-w-6xl px-6">
             <div className="bg-white/80 dark:bg-[#000814]/80 backdrop-blur-sm border border-gray-200 dark:border-white/10 rounded-2xl shadow-xl p-8 flex flex-col md:flex-row items-center gap-10">
-              <div className="relative w-[220px] h-[220px] flex-shrink-0">
+              <div className="relative w-[220px] h-[300px] flex-shrink-0">
                 <Image
                   src="/author.png"
                   alt={t("aboutAuthor")}

@@ -12,6 +12,7 @@ import { initialPosts, generateMockPosts } from "@/lib/blog-data"
 import type { BlogPost, BlogAuthor } from "@/lib/blog-data"
 import { useUser } from "@/lib/user-context"
 import { useConvexReady } from "@/app/ConvexClientProvider"
+import { useAuthToken } from "@convex-dev/auth/react"
 
 /* ── Convert a Convex post document to the BlogPost shape ── */
 function convexPostToBlogPost(post: any): BlogPost {
@@ -34,7 +35,22 @@ function convexPostToBlogPost(post: any): BlogPost {
     created_at: new Date(post._creationTime).toISOString(),
     author,
     likes: post.likeCount || 0,
-    comments: [],
+    comments: (post.comments || []).map((comment: any) => ({
+      id: comment._id,
+      content: comment.content,
+      timestamp: new Date(comment._creationTime).toLocaleString(),
+      likes: comment.likes || 0,
+      author: {
+        id: comment.userId,
+        name: comment.author?.name || "User",
+        username: comment.author?.username || "user",
+        avatarUrl: comment.author?.avatarUrl || "",
+        role: (comment.author?.role as BlogAuthor["role"]) || "Student",
+        bio: comment.author?.bio || "",
+        subjects: comment.author?.subjects || [],
+        followers: 0,
+      },
+    })),
     shares: post.shareCount || 0,
     liked: post.liked || false,
   }
@@ -58,6 +74,11 @@ function ConvexFeed({
 
   const createPost = useMutation(api.posts.create)
   const toggleLikeMut = useMutation(api.posts.toggleLike)
+  const addCommentMut = useMutation(api.posts.addComment)
+
+  // Require a real Convex JWT — cookie-only sessions must not call mutations
+  const authToken = useAuthToken()
+  const hasConvexAuth = !!authToken
 
   const [isPosting, setIsPosting] = useState(false)
   const [feedError, setFeedError] = useState<string | null>(null)
@@ -73,7 +94,10 @@ function ConvexFeed({
     media_url?: string
     media_type?: "image" | "video"
   }) => {
-    if (!isAuthenticated) return
+    if (!hasConvexAuth) {
+      setFeedError("Your session has expired. Please sign in again.")
+      return
+    }
     setIsPosting(true)
     setFeedError(null)
     try {
@@ -91,7 +115,7 @@ function ConvexFeed({
   }
 
   const handleLike = async (postId: string) => {
-    if (!isAuthenticated) return
+    if (!hasConvexAuth) return
     setFeedError(null)
     try {
       await toggleLikeMut({
@@ -100,6 +124,21 @@ function ConvexFeed({
     } catch (err) {
       console.warn("Failed to toggle like:", err)
       setFeedError(err instanceof Error ? err.message : "Failed to update like")
+    }
+  }
+
+  const handleComment = async (postId: string, content: string) => {
+    if (!hasConvexAuth) return
+    setFeedError(null)
+    try {
+      await addCommentMut({
+        postId: postId as any,
+        content,
+      })
+    } catch (err) {
+      console.warn("Failed to add comment:", err)
+      setFeedError(err instanceof Error ? err.message : "Failed to add comment")
+      throw err
     }
   }
 
@@ -120,7 +159,7 @@ function ConvexFeed({
 
   return (
     <>
-      {isAuthenticated && (
+      {hasConvexAuth && (
         <PostComposer userName={displayName} onPost={handleNewPost} isPosting={isPosting} />
       )}
 
@@ -132,7 +171,7 @@ function ConvexFeed({
         )}
 
         {posts.map((post) => (
-          <PostCard key={post.id} post={post} onLike={handleLike} />
+          <PostCard key={post.id} post={post} onLike={handleLike} onComment={handleComment} />
         ))}
 
         {(status === "LoadingMore" || status === "LoadingFirstPage") && (

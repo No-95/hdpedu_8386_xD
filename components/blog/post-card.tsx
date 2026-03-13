@@ -13,6 +13,7 @@ import type { BlogPost, BlogComment } from "@/lib/blog-data"
 interface PostCardProps {
   post: BlogPost
   onLike: (postId: string) => void
+  onComment?: (postId: string, content: string) => Promise<void> | void
 }
 
 function getInitials(name: string | undefined) {
@@ -113,12 +114,13 @@ function CommentRow({ comment }: { comment: BlogComment }) {
 }
 
 /* ─── Post Card ─── */
-export function PostCard({ post, onLike }: PostCardProps) {
+export function PostCard({ post, onLike, onComment }: PostCardProps) {
   const [showComments, setShowComments] = useState(false)
   const [replyText, setReplyText] = useState("")
   const [showShareOptions, setShowShareOptions] = useState(false)
   const [shareCount, setShareCount] = useState(post.shares)
   const [comments, setComments] = useState<BlogComment[]>(post.comments || [])
+  const [isSubmittingComment, setIsSubmittingComment] = useState(false)
 
   // Keep local comments aligned with the current post object.
   useEffect(() => {
@@ -327,13 +329,28 @@ export function PostCard({ post, onLike }: PostCardProps) {
                 </AvatarFallback>
               </Avatar>
               <form
-                onSubmit={(e) => {
+                onSubmit={async (e) => {
                   e.preventDefault();
-                  if (!replyText.trim()) return;
+                  const content = replyText.trim();
+                  if (!content) return;
+
+                  if (onComment) {
+                    try {
+                      setIsSubmittingComment(true);
+                      await onComment(post.id, content);
+                      setReplyText("");
+                    } catch {
+                      // Feed-level error UI is handled by the parent.
+                    } finally {
+                      setIsSubmittingComment(false);
+                    }
+                    return;
+                  }
+
                   const newC: BlogComment = {
                     id: `c-${Date.now()}`,
                     author: post.author,
-                    content: replyText.trim(),
+                    content,
                     timestamp: new Date().toLocaleString(),
                     likes: 0,
                   };
@@ -351,7 +368,7 @@ export function PostCard({ post, onLike }: PostCardProps) {
                 />
                 <button
                   type="submit"
-                  disabled={!replyText.trim()}
+                  disabled={!replyText.trim() || isSubmittingComment}
                   className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1 text-slate-400 transition-colors hover:text-[#A62A26] disabled:text-slate-200"
                 >
                   <Send className="h-3.5 w-3.5" />
