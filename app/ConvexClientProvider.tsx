@@ -25,12 +25,20 @@ import { resolveConvexCloudUrlForBrowser } from "@/lib/convex-env";
  * Token storage key format (from @convex-dev/auth/react):
  *   `${keyName}_${namespace.replace(/[^a-zA-Z0-9]/g, "")}`
  */
-const FLUSH_VERSION = "v2"; // bump this whenever JWKS/JWT_PRIVATE_KEY change in prod
+const AUTH_STORAGE_VERSION = "v3"; // bump this whenever cached Convex auth state must be invalidated
+
+function getAuthStorageNamespace(convexUrl: string) {
+  return `${convexUrl}::${AUTH_STORAGE_VERSION}`;
+}
 
 function flushStaleAuthTokens(currentUrl: string) {
   if (typeof window === "undefined") return;
 
   const currentNamespace = currentUrl.replace(/[^a-zA-Z0-9]/g, "");
+  const currentVersionedNamespace = getAuthStorageNamespace(currentUrl).replace(
+    /[^a-zA-Z0-9]/g,
+    "",
+  );
   const AUTH_PREFIXES = [
     "__convexAuthJWT_",
     "__convexAuthRefreshToken_",
@@ -46,7 +54,10 @@ function flushStaleAuthTokens(currentUrl: string) {
     const matchedPrefix = AUTH_PREFIXES.find((p) => key.startsWith(p));
     if (!matchedPrefix) continue;
     const keyNamespace = key.slice(matchedPrefix.length);
-    if (keyNamespace !== currentNamespace) {
+    if (
+      keyNamespace !== currentNamespace &&
+      keyNamespace !== currentVersionedNamespace
+    ) {
       keysToRemove.push(key);
     }
   }
@@ -56,7 +67,7 @@ function flushStaleAuthTokens(currentUrl: string) {
   }
 
   // 2. One-time forced flush for the current namespace (after JWKS rotation).
-  const sentinelKey = `__convexAuthFlushed_${FLUSH_VERSION}_${currentNamespace}`;
+  const sentinelKey = `__convexAuthFlushed_${AUTH_STORAGE_VERSION}_${currentNamespace}`;
   if (!localStorage.getItem(sentinelKey)) {
     const ownKeys = AUTH_PREFIXES.map((p) => `${p}${currentNamespace}`);
     const removed = ownKeys.filter((k) => {
@@ -82,10 +93,13 @@ export const useConvexReady = () => useContext(ConvexReadyContext);
 export const useConvexAuthAvailable = () => useContext(ConvexAuthAvailableContext);
 export const useConvexProbing = () => useContext(ConvexProbingContext);
 export function ConvexClientProvider({ children }: { children: ReactNode }) {
+  const convexUrl = resolveConvexCloudUrlForBrowser();
+  const authStorageNamespace = convexUrl
+    ? getAuthStorageNamespace(convexUrl)
+    : undefined;
+
   // Memoize the client so it's only created once
   const convex = useMemo(() => {
-    const convexUrl = resolveConvexCloudUrlForBrowser();
-
     // Flush any stale auth tokens from other deployments on first render.
     if (convexUrl) {
       flushStaleAuthTokens(convexUrl);
@@ -96,6 +110,7 @@ export function ConvexClientProvider({ children }: { children: ReactNode }) {
         nodeEnv: process.env.NODE_ENV,
         nextPublicConvexUrl: process.env.NEXT_PUBLIC_CONVEX_URL,
         resolvedConvexUrl: convexUrl,
+        authStorageNamespace,
       });
     }
 
@@ -108,12 +123,15 @@ export function ConvexClientProvider({ children }: { children: ReactNode }) {
       }
     }
     return null;
-  }, []);
+  }, [authStorageNamespace, convexUrl]);
 
   // Convex-enabled mode.
   if (convex) {
     return (
-      <ConvexAuthProvider client={convex}>
+      <ConvexAuthProvider
+        client={convex}
+        storageNamespace={authStorageNamespace}
+      >
         <ConvexProbingContext value={false}>
           <ConvexAuthAvailableContext value={true}>
             <ConvexReadyContext value={true}>
