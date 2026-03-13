@@ -17,7 +17,17 @@ export const generateUploadUrl = mutation(async (ctx) => {
 export const currentUser = query({
   args: {},
   handler: async (ctx) => {
-    const userId = await getAuthUserId(ctx);
+    let userId = null;
+    try {
+      userId = await getAuthUserId(ctx);
+    } catch (err) {
+      console.warn(
+        "[users.currentUser] auth verification failed:",
+        err instanceof Error ? err.message : String(err)
+      );
+      return null;
+    }
+
     if (!userId) return null;
 
     const user = await ctx.db.get(userId);

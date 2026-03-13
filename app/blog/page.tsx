@@ -1,7 +1,7 @@
 "use client"
 
 import { useRef, useEffect, useCallback, useState } from "react"
-import { usePaginatedQuery, useMutation } from "convex/react"
+import { usePaginatedQuery, useMutation, useQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { PostComposer } from "@/components/blog/post-composer"
 import { PostCard } from "@/components/blog/post-card"
@@ -78,7 +78,8 @@ function ConvexFeed({
 
   // Require a real Convex JWT — cookie-only sessions must not call mutations
   const authToken = useAuthToken()
-  const hasConvexAuth = !!authToken
+  const backendUser = useQuery(api.users.currentUser)
+  const hasConvexAuth = !!authToken && backendUser !== null
 
   const [isPosting, setIsPosting] = useState(false)
   const [feedError, setFeedError] = useState<string | null>(null)
@@ -164,6 +165,12 @@ function ConvexFeed({
       )}
 
       <div className="mt-4 space-y-4">
+        {backendUser === null && isAuthenticated && (
+          <div className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+            Your login session is out of sync. Please sign out and sign in again to post.
+          </div>
+        )}
+
         {feedError && (
           <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
             {feedError}
