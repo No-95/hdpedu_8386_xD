@@ -29,6 +29,13 @@ export default function RegisterFormPage() {
     e.preventDefault();
     if (form.phone !== form.phoneConfirm) {
       setError(language === "vi" ? "Số điện thoại nhập lại không khớp." : "전화번호가 일치하지 않습니다.");
+      return;
+    }
+
+    setError("");
+    setLoading(true);
+    try {
+      const sourcePath = "/publication/register-form";
       const response = await fetch("/api/send-registration", {
         method: "POST",
         headers: {
