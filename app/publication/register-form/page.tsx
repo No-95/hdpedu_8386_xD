@@ -2,14 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAction } from "convex/react";
-import { useMutation } from "convex/react";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { useLanguage } from "@/lib/language-context";
-import { api } from "@/convex/_generated/api";
-
-const registrationEmailApi = (api as any).registrationEmails;
 
 export default function RegisterFormPage() {
   const { language, t } = useLanguage();
@@ -27,8 +22,6 @@ export default function RegisterFormPage() {
   };
 
   const router = useRouter();
-  const createRegistration = useMutation(api.registrations.create);
-  const notifyRegistration = useAction(registrationEmailApi.notifyRegistration);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -36,28 +29,28 @@ export default function RegisterFormPage() {
     e.preventDefault();
     if (form.phone !== form.phoneConfirm) {
       setError(language === "vi" ? "Số điện thoại nhập lại không khớp." : "전화번호가 일치하지 않습니다.");
-      return;
-    }
-    setError("");
-    setLoading(true);
-    try {
-      const sourcePath = "/publication/register-form";
-      const registrationId = await createRegistration({
-        name: form.name,
-        phone: form.phone,
-        address: form.address,
-        message: form.message,
-        sourcePath,
+      const response = await fetch("/api/send-registration", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: form.name,
+          phone: form.phone,
+          address: form.address,
+          message: form.message,
+          sourcePath,
+        }),
       });
 
-      await notifyRegistration({
-        registrationId,
-        name: form.name,
-        phone: form.phone,
-        address: form.address,
-        message: form.message,
-        sourcePath,
-      });
+      const payload = (await response.json()) as {
+        success?: boolean;
+        error?: string;
+      };
+
+      if (!response.ok || !payload.success) {
+        throw new Error(payload.error || "Co loi xay ra, vui long thu lai sau.");
+      }
 
       router.push("/publication/registration-confirmed");
     } catch (err) {
@@ -212,6 +205,13 @@ export default function RegisterFormPage() {
           <div className="bg-white rounded-2xl shadow-md p-6 text-center">
             <div className="text-3xl mb-3">☎️</div>
             <h3 className="font-semibold text-gray-900 mb-1">{t("support24h")}</h3>
+            <p className="text-sm text-gray-600">0869010169</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
             <p className="text-sm text-gray-600">0869010169</p>
           </div>
         </div>
