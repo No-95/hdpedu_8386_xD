@@ -21,6 +21,11 @@ export async function POST(request: NextRequest) {
     const address = body.address?.trim();
     const message = body.message?.trim() || "(khong co)";
     const sourcePath = body.sourcePath?.trim() || "/publication/register-form";
+    const submittedAt = new Intl.DateTimeFormat("vi-VN", {
+      dateStyle: "short",
+      timeStyle: "medium",
+      timeZone: "Asia/Ho_Chi_Minh",
+    }).format(new Date());
 
     if (!name || !phone || !address) {
       return NextResponse.json(
@@ -73,24 +78,25 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify({
         from,
         to: [to],
-        subject: `[HDP EDU] Dang ky sach moi - ${name}`,
+        subject: `[HDP EDU] Đăng ký mua sách - ${name} - ${submittedAt}`,
         text: [
-          "Co mot dang ky sach moi:",
+          "Có một đơn đăng ký sách mới:",
+          `- Thời gian: ${submittedAt}`,
           `- ID: ${registrationId}`,
-          `- Ho ten: ${name}`,
-          `- So dien thoai: ${phone}`,
-          `- Dia chi: ${address}`,
-          `- Ghi chu: ${message}`,
-          `- Nguon: ${sourcePath}`,
+          `- Họ tên: ${name}`,
+          `- Số điện thoại: ${phone}`,
+          `- Địa chỉ: ${address}`,
+          `- Ghi chú: ${message}`,
+          `- Nguồn: ${sourcePath}`,
         ].join("\n"),
         html: `
-          <h2>Co mot dang ky sach moi</h2>
+          <h2>Có một đơn đăng ký sách mới</h2>
           <p><strong>ID:</strong> ${registrationId}</p>
-          <p><strong>Ho ten:</strong> ${name}</p>
-          <p><strong>So dien thoai:</strong> ${phone}</p>
-          <p><strong>Dia chi:</strong> ${address}</p>
-          <p><strong>Ghi chu:</strong> ${message}</p>
-          <p><strong>Nguon:</strong> ${sourcePath}</p>
+          <p><strong>Họ tên:</strong> ${name}</p>
+          <p><strong>Số điện thoại:</strong> ${phone}</p>
+          <p><strong>Địa chỉ:</strong> ${address}</p>
+          <p><strong>Ghi chú:</strong> ${message}</p>
+          <p><strong>Nguồn:</strong> ${sourcePath}</p>
         `,
       }),
     });
