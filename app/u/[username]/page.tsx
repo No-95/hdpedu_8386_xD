@@ -16,7 +16,7 @@ import { Label } from "@/components/ui/label";
 import { motion } from "framer-motion";
 import { Edit2, Briefcase, BookOpen, Award } from "lucide-react";
 import Link from "next/link";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 
 export default function ProfilePage() {
   const params = useParams();
@@ -31,8 +31,10 @@ export default function ProfilePage() {
   });
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | undefined>(undefined);
+  const [selectedBackground, setSelectedBackground] = useState<string>("");
 
   const generateUploadUrl = useMutation(api.users.generateUploadUrl);
+  const updateBackgroundImage = useMutation((api as any).users.updateBackgroundImage);
   const username = (params?.username as string) || "";
 
   // Only query the profile when we have a valid username
@@ -42,6 +44,10 @@ export default function ProfilePage() {
     username ? { username } : "skip"
   );
   const currentProfile = useQuery(api.profiles.getCurrentUserProfile, {});
+  const availableBackgrounds = useQuery(
+    (api as any).backgrounds.getAvailableBackgrounds,
+    isAuthenticated ? {} : "skip"
+  ) as string[] | undefined;
   
   // Determine if we're in a loading state
   // Show loading spinner while auth is loading or profile query is pending
@@ -64,6 +70,7 @@ export default function ProfilePage() {
         subjects: (profile.subjects || []).join(", "),
       });
       setAvatarPreview(profile.avatarUrl || undefined);
+      setSelectedBackground((profile as any).backgroundImage || "");
       // Only clear avatar file if dialog is being opened fresh
       if (editOpen) {
         setAvatarFile(null);
@@ -75,8 +82,9 @@ export default function ProfilePage() {
   useEffect(() => {
     if (editOpen) {
       setAvatarFile(null);
+      setSelectedBackground(((profile as any)?.backgroundImage as string) || "");
     }
-  }, [editOpen]);
+  }, [editOpen, profile]);
 
   const handleUpdateProfile = async () => {
     if (!profile) {
@@ -142,6 +150,13 @@ export default function ProfilePage() {
         subjects: subjectsArray.length > 0 ? subjectsArray : undefined,
         avatarId: avatarId ? (avatarId as any) : undefined,
       });
+
+      if (
+        selectedBackground &&
+        selectedBackground !== (((profile as any)?.backgroundImage as string | undefined) || "")
+      ) {
+        await updateBackgroundImage({ backgroundImage: selectedBackground });
+      }
       
       console.log("Mutation result received:", result);
 
@@ -159,6 +174,7 @@ export default function ProfilePage() {
       setFormData({ displayName: "", bio: "", subjects: "" });
       setAvatarFile(null);
       setAvatarPreview(undefined);
+      setSelectedBackground("");
       
       // Force Next.js to clear server-side cache and show latest data
       router.refresh();
@@ -227,7 +243,17 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       {/* Cover Banner */}
-      <div className="h-48 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 relative"></div>
+      <div className="h-48 relative overflow-hidden">
+        {(profile as any).backgroundImage ? (
+          <div
+            className="absolute inset-0 bg-cover bg-center"
+            style={{ backgroundImage: `url(${(profile as any).backgroundImage})` }}
+          />
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600" />
+        )}
+        <div className="absolute inset-0 bg-black/30" />
+      </div>
 
       {/* Profile Header */}
       <div className="relative px-4 sm:px-6 lg:px-8 -mt-20 pb-8">
@@ -259,7 +285,7 @@ export default function ProfilePage() {
                     Edit Profile
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-md bg-gradient-to-br from-slate-900 to-slate-800 border border-slate-700 shadow-2xl max-h-[75vh] overflow-y-auto">
+                <DialogContent className="max-w-3xl bg-gradient-to-br from-slate-900 to-slate-800 border border-slate-700 shadow-2xl max-h-[85vh] overflow-y-auto">
                   <DialogHeader className="border-b border-slate-700 pb-4">
                     <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
                       Edit Your Professional Profile
@@ -360,6 +386,39 @@ export default function ProfilePage() {
                           className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-500 focus:border-indigo-500 focus:ring-indigo-500/50 resize-none"
                         />
                         <p className="text-xs text-slate-500 mt-2">Separate multiple interests with commas</p>
+                      </div>
+
+                      <div className="bg-slate-800/30 rounded-lg p-4 border border-slate-600/30">
+                        <Label className="text-sm font-semibold text-slate-100 block mb-3">
+                          Profile Background
+                        </Label>
+                        <p className="text-xs text-slate-400 mb-3">
+                          Select a background image for your profile cover.
+                        </p>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                          {(availableBackgrounds || []).map((bgPath) => {
+                            const active = selectedBackground === bgPath;
+                            return (
+                              <button
+                                key={bgPath}
+                                type="button"
+                                onClick={() => setSelectedBackground(bgPath)}
+                                className={`relative overflow-hidden rounded-lg border-2 transition-all h-20 bg-slate-700 ${
+                                  active
+                                    ? "border-indigo-400 ring-2 ring-indigo-400/60"
+                                    : "border-slate-600 hover:border-indigo-300"
+                                }`}
+                                title={bgPath}
+                              >
+                                <div
+                                  className="absolute inset-0 bg-cover bg-center"
+                                  style={{ backgroundImage: `url(${bgPath})` }}
+                                />
+                                <div className={`absolute inset-0 ${active ? "bg-indigo-900/20" : "bg-black/25"}`} />
+                              </button>
+                            );
+                          })}
+                        </div>
                       </div>
                     </div>
                   </div>

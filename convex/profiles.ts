@@ -8,6 +8,7 @@ import { v } from "convex/values";
  * This is the single source of truth for profile resolution.
  */
 async function resolveProfile(ctx: any, profile: any) {
+  const authUser = await ctx.db.get(profile.userId);
   let avatarUrl = profile.avatarUrl;
   if (profile.avatarId) {
     const storageUrl = await ctx.storage.getUrl(profile.avatarId);
@@ -22,6 +23,7 @@ async function resolveProfile(ctx: any, profile: any) {
     avatarUrl: avatarUrl || null,
     bio: profile.bio || "",
     role: profile.role || null,
+    backgroundImage: (authUser as any)?.backgroundImage || null,
     subjects: profile.subjects || [],
     _creationTime: profile._creationTime,
   };
