@@ -10,6 +10,7 @@
 
 import type * as auth from "../auth.js";
 import type * as authActions from "../authActions.js";
+import type * as backgrounds from "../backgrounds.js";
 import type * as http from "../http.js";
 import type * as maintenance from "../maintenance.js";
 import type * as posts from "../posts.js";
@@ -27,6 +28,7 @@ import type {
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   authActions: typeof authActions;
+  backgrounds: typeof backgrounds;
   http: typeof http;
   maintenance: typeof maintenance;
   posts: typeof posts;

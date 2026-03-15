@@ -26,7 +26,13 @@ const vipBackgrounds = [
 export const getAvailableBackgrounds = query({
   args: {},
   handler: async (ctx) => {
-    const userId = await getAuthUserId(ctx);
+    let userId = null;
+    try {
+      userId = await getAuthUserId(ctx);
+    } catch {
+      return normalBackgrounds;
+    }
+
     if (!userId) return normalBackgrounds;
 
     const user = await ctx.db.get(userId);

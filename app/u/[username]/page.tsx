@@ -34,7 +34,7 @@ export default function ProfilePage() {
   const [selectedBackground, setSelectedBackground] = useState<string>("");
 
   const generateUploadUrl = useMutation(api.users.generateUploadUrl);
-  const updateBackgroundImage = useMutation((api as any).users.updateBackgroundImage);
+  const updateBackgroundImage = useMutation(api.users.updateBackgroundImage);
   const username = (params?.username as string) || "";
 
   // Only query the profile when we have a valid username
@@ -44,10 +44,6 @@ export default function ProfilePage() {
     username ? { username } : "skip"
   );
   const currentProfile = useQuery(api.profiles.getCurrentUserProfile, {});
-  const availableBackgrounds = useQuery(
-    (api as any).backgrounds.getAvailableBackgrounds,
-    isAuthenticated ? {} : "skip"
-  ) as string[] | undefined;
   
   // Determine if we're in a loading state
   // Show loading spinner while auth is loading or profile query is pending
@@ -59,6 +55,12 @@ export default function ProfilePage() {
     currentProfile &&
     profile &&
     currentProfile.userId === profile.userId;
+
+  const shouldLoadBackgrounds = Boolean(isAuthenticated && isOwnProfile && editOpen);
+  const availableBackgrounds = useQuery(
+    api.backgrounds.getAvailableBackgrounds,
+    shouldLoadBackgrounds ? {} : "skip"
+  );
 
   // Initialize form data with profile data whenever profile changes
   // This ensures the form always reflects the latest database state
