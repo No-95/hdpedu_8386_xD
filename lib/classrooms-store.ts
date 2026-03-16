@@ -13,17 +13,9 @@ declare global {
   var __HDP_CLASSROOM_STORE__: ClassroomRoom[] | undefined
 }
 
-const DEFAULT_ROOMS: ClassroomRoom[] = [
-  {
-    roomID: 'hdpedu-live',
-    name: 'HDP Edu Live',
-    password: 'hdp123',
-    isLive: true,
-    createdAt: Date.now(),
-    participantCount: 0,
-    emptySince: Date.now(),
-  },
-]
+const DEFAULT_ROOMS: ClassroomRoom[] = []
+
+const FORCED_DELETED_ROOM_IDS = new Set(['hdpedu-live'])
 
 const EMPTY_ROOM_GRACE_MS = 2 * 60 * 1000
 
@@ -39,6 +31,7 @@ function pruneEmptyRooms() {
   if (!globalThis.__HDP_CLASSROOM_STORE__) return
   const now = Date.now()
   globalThis.__HDP_CLASSROOM_STORE__ = globalThis.__HDP_CLASSROOM_STORE__.filter((room) => {
+    if (FORCED_DELETED_ROOM_IDS.has(room.roomID)) return false
     if (!room.isLive) return false
     if (room.participantCount > 0) return true
     if (!room.emptySince) return true
