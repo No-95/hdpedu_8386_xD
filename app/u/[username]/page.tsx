@@ -206,8 +206,7 @@ export default function ProfilePage() {
       const coverUrl = await resolveStorageUrl({ storageId: json.storageId });
       if (!coverUrl) throw new Error("Failed to resolve uploaded cover URL");
 
-      await updateProfileMutation({ backgroundImage: coverUrl });
-      setSelectedBackground(coverUrl);
+      await updateProfileMutation({ coverImage: coverUrl });
       toast.success("Cover photo updated");
       router.refresh();
     } catch (error: any) {
@@ -276,11 +275,11 @@ export default function ProfilePage() {
       <div className="fixed inset-0 -z-10 bg-slate-900/75" />
 
       {/* Facebook-style cover banner */}
-      <div className="h-64 relative overflow-hidden">
-        {(profile as any).backgroundImage ? (
+      <div className="h-[260px] relative overflow-hidden">
+        {(profile as any).coverImage ? (
           <div
             className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: `url(${(profile as any).backgroundImage})` }}
+            style={{ backgroundImage: `url(${(profile as any).coverImage})` }}
           />
         ) : (
           <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600" />
@@ -450,10 +449,10 @@ export default function ProfilePage() {
 
                       <div className="bg-slate-800/30 rounded-lg p-4 border border-slate-600/30">
                         <Label className="text-sm font-semibold text-slate-100 block mb-3">
-                          Profile Background
+                          Full Page Background
                         </Label>
                         <p className="text-xs text-slate-400 mb-3">
-                          Select a built-in background or use "Change cover photo" on the banner.
+                          Select one of the available presets. It will apply to the whole page after you click Save Changes.
                         </p>
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                           {(availableBackgrounds || []).map((bgPath) => {

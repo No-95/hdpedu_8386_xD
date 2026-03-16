@@ -22,6 +22,7 @@ async function resolveProfile(ctx: any, profile: any) {
     avatarUrl: avatarUrl || null,
     bio: profile.bio || "",
     role: profile.role || null,
+    coverImage: profile.coverImage || null,
     backgroundImage: profile.backgroundImage || null,
     subjects: profile.subjects || [],
     _creationTime: profile._creationTime,
@@ -58,6 +59,7 @@ export const updateProfile = mutation({
     bio: v.optional(v.string()),
     subjects: v.optional(v.array(v.string())),
     avatarId: v.optional(v.id("_storage")),
+    coverImage: v.optional(v.string()),
     backgroundImage: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
@@ -98,10 +100,17 @@ export const updateProfile = mutation({
       updateData.subjects = args.subjects;
     }
 
+    if (args.coverImage !== undefined) {
+      const isUploadedUrl = /^https?:\/\//.test(args.coverImage);
+      if (args.coverImage !== "" && !isUploadedUrl) {
+        throw new Error("Invalid cover image path");
+      }
+      updateData.coverImage = args.coverImage || undefined;
+    }
+
     if (args.backgroundImage !== undefined) {
       const isBuiltIn = args.backgroundImage.startsWith("/profile-bg/");
-      const isUploadedUrl = /^https?:\/\//.test(args.backgroundImage);
-      if (args.backgroundImage !== "" && !isBuiltIn && !isUploadedUrl) {
+      if (args.backgroundImage !== "" && !isBuiltIn) {
         throw new Error("Invalid background image path");
       }
       updateData.backgroundImage = args.backgroundImage || undefined;
@@ -170,6 +179,7 @@ export const upsertProfile = mutation({
     avatarId: v.optional(v.id("_storage")),
     avatarUrl: v.optional(v.string()),
     role: v.optional(v.string()),
+    coverImage: v.optional(v.string()),
     backgroundImage: v.optional(v.string()),
     subjects: v.optional(v.array(v.string())),
   },
@@ -201,6 +211,7 @@ export const upsertProfile = mutation({
       avatarId: args.avatarId,
       avatarUrl: avatarUrl,
       ...(args.role && { role: args.role }),
+      ...(args.coverImage && { coverImage: args.coverImage }),
       ...(args.backgroundImage && { backgroundImage: args.backgroundImage }),
       ...(args.subjects && { subjects: args.subjects }),
     };

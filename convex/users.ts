@@ -62,6 +62,7 @@ export const currentUser = query({
         avatarUrl: avatarUrl || null,
         bio: profile.bio || "",
         email: user?.email ?? null,
+        coverImage: profile.coverImage || null,
         backgroundImage: profile.backgroundImage || null,
       };
     }
@@ -70,6 +71,7 @@ export const currentUser = query({
     return {
       displayName: null,
       email: user?.email ?? null,
+      coverImage: null,
       backgroundImage: null,
     };
   },

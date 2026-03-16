@@ -14,6 +14,7 @@ export default defineSchema({
     avatarId: v.optional(v.id("_storage")), 
     bio: v.optional(v.string()),
     role: v.optional(v.string()),
+    coverImage: v.optional(v.string()),
     backgroundImage: v.optional(v.string()),
     subjects: v.optional(v.array(v.string())),
   })
