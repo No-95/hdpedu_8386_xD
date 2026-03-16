@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { motion } from "framer-motion";
-import { Edit2, Briefcase, BookOpen, Award } from "lucide-react";
+import { Edit2, Briefcase, BookOpen, Award, Camera } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 
@@ -24,6 +24,7 @@ export default function ProfilePage() {
   const { user: currentUser, isAuthenticated, isLoading: authLoading } = useUser();
   const [editOpen, setEditOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploadingCover, setIsUploadingCover] = useState(false);
   const [formData, setFormData] = useState({
     displayName: "",
     bio: "",
@@ -34,6 +35,7 @@ export default function ProfilePage() {
   const [selectedBackground, setSelectedBackground] = useState<string>("");
 
   const generateUploadUrl = useMutation(api.users.generateUploadUrl);
+  const resolveStorageUrl = useMutation((api as any).users.resolveStorageUrl);
   const username = (params?.username as string) || "";
 
   // Only query the profile when we have a valid username
@@ -189,6 +191,33 @@ export default function ProfilePage() {
     }
   };
 
+  const handleCoverPhotoUpload = async (file: File) => {
+    if (!isOwnProfile) return;
+    setIsUploadingCover(true);
+    try {
+      const uploadUrl = await generateUploadUrl();
+      const resp = await fetch(uploadUrl, {
+        method: "POST",
+        headers: { "Content-Type": file.type },
+        body: file,
+      });
+      if (!resp.ok) throw new Error(`Cover upload failed: ${resp.status}`);
+      const json = await resp.json();
+      const coverUrl = await resolveStorageUrl({ storageId: json.storageId });
+      if (!coverUrl) throw new Error("Failed to resolve uploaded cover URL");
+
+      await updateProfileMutation({ backgroundImage: coverUrl });
+      setSelectedBackground(coverUrl);
+      toast.success("Cover photo updated");
+      router.refresh();
+    } catch (error: any) {
+      console.error("Failed to upload cover photo:", error);
+      toast.error("Failed to upload cover photo: " + (error?.message || "Unknown error"));
+    } finally {
+      setIsUploadingCover(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
@@ -237,9 +266,17 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      {/* Cover Banner */}
-      <div className="h-48 relative overflow-hidden">
+    <div className="relative min-h-screen overflow-x-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+      {(profile as any).backgroundImage ? (
+        <div
+          className="fixed inset-0 -z-20 bg-cover bg-fixed bg-center bg-no-repeat"
+          style={{ backgroundImage: `url(${(profile as any).backgroundImage})` }}
+        />
+      ) : null}
+      <div className="fixed inset-0 -z-10 bg-slate-900/75" />
+
+      {/* Facebook-style cover banner */}
+      <div className="h-64 relative overflow-hidden">
         {(profile as any).backgroundImage ? (
           <div
             className="absolute inset-0 bg-cover bg-center"
@@ -249,6 +286,33 @@ export default function ProfilePage() {
           <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600" />
         )}
         <div className="absolute inset-0 bg-black/30" />
+
+        {isOwnProfile && (
+          <>
+            <input
+              id="cover-upload"
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  void handleCoverPhotoUpload(file);
+                }
+                e.currentTarget.value = "";
+              }}
+            />
+            <Button
+              type="button"
+              disabled={isUploadingCover}
+              onClick={() => document.getElementById("cover-upload")?.click()}
+              className="absolute bottom-4 right-4 bg-black/60 hover:bg-black/70 border border-white/20 text-white"
+            >
+              <Camera className="w-4 h-4 mr-2" />
+              {isUploadingCover ? "Uploading..." : "Change cover photo"}
+            </Button>
+          </>
+        )}
       </div>
 
       {/* Profile Header */}
@@ -389,7 +453,7 @@ export default function ProfilePage() {
                           Profile Background
                         </Label>
                         <p className="text-xs text-slate-400 mb-3">
-                          Select a background image for your profile cover.
+                          Select a built-in background or use "Change cover photo" on the banner.
                         </p>
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                           {(availableBackgrounds || []).map((bgPath) => {

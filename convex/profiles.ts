@@ -99,7 +99,9 @@ export const updateProfile = mutation({
     }
 
     if (args.backgroundImage !== undefined) {
-      if (args.backgroundImage !== "" && !args.backgroundImage.startsWith("/profile-bg/")) {
+      const isBuiltIn = args.backgroundImage.startsWith("/profile-bg/");
+      const isUploadedUrl = /^https?:\/\//.test(args.backgroundImage);
+      if (args.backgroundImage !== "" && !isBuiltIn && !isUploadedUrl) {
         throw new Error("Invalid background image path");
       }
       updateData.backgroundImage = args.backgroundImage || undefined;

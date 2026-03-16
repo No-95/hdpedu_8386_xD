@@ -10,6 +10,17 @@ export const generateUploadUrl = mutation(async (ctx) => {
 });
 
 /**
+ * Resolve a storage ID into a public URL.
+ * Used by the profile page after direct uploads (e.g. cover photos).
+ */
+export const resolveStorageUrl = mutation({
+  args: { storageId: v.id("_storage") },
+  handler: async (ctx, args) => {
+    return await ctx.storage.getUrl(args.storageId);
+  },
+});
+
+/**
  * Get the currently authenticated user's profile.
  * Joins with the profiles table to return displayName, username, and avatarUrl.
  * Note: All profile mutations/queries have been moved to convex/profiles.ts.
