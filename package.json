@@ -75,6 +75,7 @@
   },
   "devDependencies": {
     "@cloudflare/next-on-pages": "^1.13.16",
+    "@opennextjs/cloudflare": "^1.18.0",
     "@types/node": "^20",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",

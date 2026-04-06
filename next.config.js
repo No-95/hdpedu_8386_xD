@@ -1,8 +1,7 @@
-const { setupDevPlatform } = require('@cloudflare/next-on-pages/next-dev');
+const { withOpenNext } = require("@opennextjs/cloudflare");
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  ...setupDevPlatform(),
   images: {
     unoptimized: true,
   },
@@ -17,4 +16,4 @@ const nextConfig = {
   },
 };
 
-module.exports = nextConfig;
+module.exports = withOpenNext(nextConfig);
