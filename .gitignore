@@ -25,6 +25,12 @@ convex/.tmp
 # vercel
 .vercel
 
+# OpenNext / Cloudflare
+.open-next/
+.wrangler/
+output.wrangler
+.dev.vars
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
