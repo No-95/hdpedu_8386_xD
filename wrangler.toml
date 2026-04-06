@@ -1,0 +1,6 @@
+name = "hdp-edu-8386"
+type = "service"
+main = "dist/index.js"
+
+[env.production]
+name = "hdp-edu-8386-prod"

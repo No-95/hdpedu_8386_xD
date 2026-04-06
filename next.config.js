@@ -1,5 +1,3 @@
-const { withOpenNext } = require("@opennextjs/cloudflare");
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
@@ -16,4 +14,4 @@ const nextConfig = {
   },
 };
 
-module.exports = withOpenNext(nextConfig);
+module.exports = nextConfig;
