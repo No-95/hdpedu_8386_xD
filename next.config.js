@@ -1,5 +1,8 @@
+const { setupDevPlatform } = require('@cloudflare/next-on-pages/next-dev');
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  ...setupDevPlatform(),
   images: {
     unoptimized: true,
   },
