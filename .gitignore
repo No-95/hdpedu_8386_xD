@@ -30,6 +30,7 @@ convex/.tmp
 .wrangler/
 output.wrangler
 .dev.vars
+convex-backups/
 
 # typescript
 *.tsbuildinfo
