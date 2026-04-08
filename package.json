@@ -2,9 +2,12 @@
   "name": "my-v0-project",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@10.18.3",
   "scripts": {
     "build": "next build",
     "build:cloudflare": "npx opennextjs-cloudflare build",
+    "preview:cloudflare": "pnpm build:cloudflare && npx wrangler dev",
+    "deploy:cloudflare": "pnpm build:cloudflare && npx wrangler deploy",
     "dev": "next dev",
     "dev:all": "concurrently \"pnpm run convex:dev\" \"pnpm run dev\"",
     "lint": "eslint .",
