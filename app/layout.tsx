@@ -1,6 +1,5 @@
 import React from "react"
 import type { Metadata } from 'next'
-import { Analytics } from '@vercel/analytics/next'
 import { ConvexClientProvider } from './ConvexClientProvider'
 import { UserProvider } from '@/lib/user-context'
 import { LanguageProvider } from '@/lib/language-context'
@@ -47,7 +46,6 @@ export default function RootLayout({
             </LanguageProvider>
           </ThemeProviderWrapper>
         </ConvexClientProvider>
-        <Analytics />
       </body>
     </html>
   )

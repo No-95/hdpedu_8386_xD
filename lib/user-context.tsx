@@ -28,7 +28,12 @@ function ConvexUserProvider({ children }: { children: ReactNode }) {
   const [cookieAuth, setCookieAuth] = useState<string | null>(null)
   const [hasExplicitSignOut, setHasExplicitSignOut] = useState(false)
   const authToken = useAuthToken()
-  const { signOut: convexSignOut } = useAuthActions()
+  const authActions = useAuthActions() as
+    | {
+        signOut?: () => Promise<void>
+      }
+    | undefined
+  const convexSignOut = authActions?.signOut
 
   const refreshAuth = useCallback(() => {
     if (typeof document === "undefined") return
@@ -94,7 +99,9 @@ function ConvexUserProvider({ children }: { children: ReactNode }) {
     setHasExplicitSignOut(true)
 
     try {
-      await convexSignOut()
+      if (convexSignOut) {
+        await convexSignOut()
+      }
     } catch (error) {
       console.warn("Convex signOut failed:", error)
     }

@@ -4,10 +4,9 @@ import {
   ReactNode,
   createContext,
   useContext,
-  useMemo,
+  useEffect,
+  useState,
 } from "react";
-import { ConvexReactClient } from "convex/react";
-import { ConvexAuthProvider } from "@convex-dev/auth/react";
 import { resolveConvexCloudUrlForBrowser } from "@/lib/convex-env";
 
 /**
@@ -92,44 +91,101 @@ const ConvexProbingContext = createContext<boolean>(true);
 export const useConvexReady = () => useContext(ConvexReadyContext);
 export const useConvexAuthAvailable = () => useContext(ConvexAuthAvailableContext);
 export const useConvexProbing = () => useContext(ConvexProbingContext);
+
+type ConvexRuntime = {
+  client: unknown;
+  AuthProvider: React.ComponentType<{
+    client: unknown;
+    storageNamespace?: string;
+    children: ReactNode;
+  }>;
+};
+
 export function ConvexClientProvider({ children }: { children: ReactNode }) {
   const convexUrl = resolveConvexCloudUrlForBrowser();
   const authStorageNamespace = convexUrl
     ? getAuthStorageNamespace(convexUrl)
     : undefined;
+  const [runtime, setRuntime] = useState<ConvexRuntime | null>(null);
+  const [isResolved, setIsResolved] = useState(false);
 
-  // Memoize the client so it's only created once
-  const convex = useMemo(() => {
-    // Flush any stale auth tokens from other deployments on first render.
-    if (convexUrl) {
-      flushStaleAuthTokens(convexUrl);
-    }
-    if (typeof window !== "undefined") {
-      console.log("[Convex debug]", {
-        host: window.location.host,
-        nodeEnv: process.env.NODE_ENV,
-        nextPublicConvexUrl: process.env.NEXT_PUBLIC_CONVEX_URL,
-        resolvedConvexUrl: convexUrl,
-        authStorageNamespace,
-      });
-    }
+  useEffect(() => {
+    let cancelled = false;
 
-    if (convexUrl && convexUrl.startsWith("https://")) {
+    async function initConvexRuntime() {
+      // Flush any stale auth tokens from other deployments on first render.
+      if (convexUrl) {
+        flushStaleAuthTokens(convexUrl);
+      }
+      if (typeof window !== "undefined") {
+        console.log("[Convex debug]", {
+          host: window.location.host,
+          nodeEnv: process.env.NODE_ENV,
+          nextPublicConvexUrl: process.env.NEXT_PUBLIC_CONVEX_URL,
+          resolvedConvexUrl: convexUrl,
+          authStorageNamespace,
+        });
+      }
+
+      if (!convexUrl || !convexUrl.startsWith("https://")) {
+        if (!cancelled) {
+          setRuntime(null);
+          setIsResolved(true);
+        }
+        return;
+      }
+
       try {
-        return new ConvexReactClient(convexUrl);
+        // Load Convex modules lazily in the browser to keep Worker SSR bundle free of ws/node:https.
+        const [{ ConvexReactClient }, { ConvexAuthProvider }] = await Promise.all([
+          import("convex/react"),
+          import("@convex-dev/auth/react"),
+        ]);
+
+        if (cancelled) return;
+
+        const client = new ConvexReactClient(convexUrl);
+        setRuntime({
+          client,
+          AuthProvider: ConvexAuthProvider as ConvexRuntime["AuthProvider"],
+        });
       } catch (e) {
         console.error("Convex client initialization failed", e);
-        return null;
+        if (!cancelled) {
+          setRuntime(null);
+        }
+      } finally {
+        if (!cancelled) {
+          setIsResolved(true);
+        }
       }
     }
-    return null;
+
+    void initConvexRuntime();
+
+    return () => {
+      cancelled = true;
+    };
   }, [authStorageNamespace, convexUrl]);
 
-  // Convex-enabled mode.
-  if (convex) {
+  if (!isResolved) {
     return (
-      <ConvexAuthProvider
-        client={convex}
+      <ConvexProbingContext value={true}>
+        <ConvexAuthAvailableContext value={false}>
+          <ConvexReadyContext value={false}>
+            <div />
+          </ConvexReadyContext>
+        </ConvexAuthAvailableContext>
+      </ConvexProbingContext>
+    );
+  }
+
+  // Convex-enabled mode.
+  if (runtime) {
+    const AuthProvider = runtime.AuthProvider;
+    return (
+      <AuthProvider
+        client={runtime.client}
         storageNamespace={authStorageNamespace}
       >
         <ConvexProbingContext value={false}>
@@ -139,7 +195,7 @@ export function ConvexClientProvider({ children }: { children: ReactNode }) {
             </ConvexReadyContext>
           </ConvexAuthAvailableContext>
         </ConvexProbingContext>
-      </ConvexAuthProvider>
+      </AuthProvider>
     );
   }
 
@@ -148,7 +204,7 @@ export function ConvexClientProvider({ children }: { children: ReactNode }) {
     <ConvexProbingContext value={false}>
       <ConvexAuthAvailableContext value={false}>
         <ConvexReadyContext value={false}>
-          {children}
+          <div />
         </ConvexReadyContext>
       </ConvexAuthAvailableContext>
     </ConvexProbingContext>
