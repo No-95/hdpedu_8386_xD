@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { ConvexHttpClient } from 'convex/browser'
+import { fetchQuery } from 'convex/nextjs'
 import { resolveConvexCloudUrl } from '@/lib/convex-env'
+import { api } from '@/convex/_generated/api'
 
 export async function GET(request: NextRequest) {
   try {
     const host = request.headers.get('host')
     const convexUrl = resolveConvexCloudUrl({ host })
-    const convex = new ConvexHttpClient(convexUrl)
 
     const authEmailCookie = request.cookies.get('auth_session')?.value
     const authEmail = authEmailCookie ? decodeURIComponent(authEmailCookie).trim() : ''
@@ -15,9 +15,10 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ ok: true, canCreate: false })
     }
 
-    const canCreate = await convex.query(
-      'classroomsAuth:canCreateClassroomByEmail' as any,
+    const canCreate = await fetchQuery(
+      api.classroomsAuth.canCreateClassroomByEmail,
       { email: authEmail },
+      { url: convexUrl },
     )
 
     return NextResponse.json({ ok: true, canCreate: Boolean(canCreate) })
