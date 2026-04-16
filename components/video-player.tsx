@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { Play, Pause, Volume2, VolumeX, Maximize } from "lucide-react"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
@@ -19,15 +19,58 @@ export function VideoPlayer({ lesson }: VideoPlayerProps) {
   const [volume, setVolume] = useState(1)
   const [isMuted, setIsMuted] = useState(false)
   const [showControls, setShowControls] = useState(true)
+  const [playbackError, setPlaybackError] = useState<string | null>(null)
+
+  const videoUrl = useMemo(() => {
+    const raw = lesson.videoUrl?.trim()
+    if (!raw) return ""
+
+    if (raw.startsWith("/")) {
+      return raw
+    }
+
+    try {
+      const parsed = new URL(raw)
+      if (parsed.protocol !== "https:" && parsed.protocol !== "http:") {
+        return ""
+      }
+
+      if (parsed.hostname === "github.com" && parsed.pathname.includes("/blob/")) {
+        const blobPath = parsed.pathname.split("/blob/")
+        if (blobPath.length === 2) {
+          return `https://raw.githubusercontent.com${blobPath[0]}/${blobPath[1]}`
+        }
+      }
+
+      return parsed.toString()
+    } catch {
+      return ""
+    }
+  }, [lesson.videoUrl])
+
+  useEffect(() => {
+    setIsPlaying(false)
+    setCurrentTime(0)
+    setDuration(0)
+    setPlaybackError(null)
+  }, [videoUrl, lesson.id])
 
   const togglePlay = () => {
-    if (videoRef.current) {
+    const video = videoRef.current
+    if (video) {
       if (isPlaying) {
-        videoRef.current.pause()
+        video.pause()
+        setIsPlaying(false)
       } else {
-        videoRef.current.play()
+        void video.play()
+          .then(() => {
+            setPlaybackError(null)
+            setIsPlaying(true)
+          })
+          .catch(() => {
+            setPlaybackError("Unable to play this video URL. Verify that the host allows direct playback (CORS/public access).")
+          })
       }
-      setIsPlaying(!isPlaying)
     }
   }
 
@@ -88,21 +131,39 @@ export function VideoPlayer({ lesson }: VideoPlayerProps) {
       onMouseEnter={() => setShowControls(true)}
       onMouseLeave={() => setShowControls(false)}
     >
-      <video
-        ref={videoRef}
-        src={lesson.videoUrl}
-        className="h-full w-full object-contain"
-        onTimeUpdate={handleTimeUpdate}
-        onLoadedMetadata={handleLoadedMetadata}
-        onEnded={() => setIsPlaying(false)}
-      />
+      {videoUrl ? (
+        <video
+          ref={videoRef}
+          src={videoUrl}
+          className="h-full w-full object-contain"
+          onTimeUpdate={handleTimeUpdate}
+          onLoadedMetadata={handleLoadedMetadata}
+          onEnded={() => setIsPlaying(false)}
+          onError={() => {
+            setPlaybackError("Unable to load this video URL. The host may block direct playback or require authentication.")
+          }}
+          crossOrigin="anonymous"
+          preload="metadata"
+        />
+      ) : (
+        <div className="flex h-full w-full items-center justify-center px-6 text-center text-sm text-white/80">
+          No video URL configured for this lesson. Set a direct MP4/WebM URL (for example from your object storage or CDN).
+        </div>
+      )}
+
+      {playbackError && (
+        <div className="absolute left-4 right-4 top-4 rounded-md border border-red-300/30 bg-red-900/60 px-3 py-2 text-xs text-red-50">
+          {playbackError}
+        </div>
+      )}
 
       {/* Video Controls */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: showControls ? 1 : 0 }}
-        className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-4"
-      >
+      {videoUrl && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: showControls ? 1 : 0 }}
+          className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-4"
+        >
           {/* Progress Bar */}
           <div className="mb-4">
             <Slider
@@ -170,6 +231,7 @@ export function VideoPlayer({ lesson }: VideoPlayerProps) {
             </Button>
           </div>
         </motion.div>
+      )}
     </div>
   )
 }
