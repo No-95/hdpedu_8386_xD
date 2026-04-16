@@ -31,7 +31,7 @@ export function VideoPlayer({ lesson }: VideoPlayerProps) {
 
     try {
       const parsed = new URL(raw)
-      if (parsed.protocol !== "https:" && parsed.protocol !== "http:") {
+      if (parsed.protocol !== "https:") {
         return ""
       }
 
@@ -59,16 +59,23 @@ export function VideoPlayer({ lesson }: VideoPlayerProps) {
     const video = videoRef.current
     if (video) {
       if (isPlaying) {
-        video.pause()
         setIsPlaying(false)
+        video.pause()
       } else {
         void video.play()
           .then(() => {
             setPlaybackError(null)
             setIsPlaying(true)
           })
-          .catch(() => {
-            setPlaybackError("Unable to play this video URL. Verify that the host allows direct playback (CORS/public access).")
+          .catch((error) => {
+            if (error instanceof DOMException && error.name === "NotAllowedError") {
+              setIsPlaying(false)
+              setPlaybackError("Playback was blocked by the browser. Click play again to start the video.")
+              return
+            }
+
+            setIsPlaying(false)
+            setPlaybackError("Unable to play this video. Please verify the URL and try again.")
           })
       }
     }
@@ -139,8 +146,10 @@ export function VideoPlayer({ lesson }: VideoPlayerProps) {
           onTimeUpdate={handleTimeUpdate}
           onLoadedMetadata={handleLoadedMetadata}
           onEnded={() => setIsPlaying(false)}
+          onPlay={() => setIsPlaying(true)}
+          onPause={() => setIsPlaying(false)}
           onError={() => {
-            setPlaybackError("Unable to load this video URL. The host may block direct playback or require authentication.")
+            setPlaybackError("Failed to load video. Please verify the URL is valid and accessible.")
           }}
           crossOrigin="anonymous"
           preload="metadata"

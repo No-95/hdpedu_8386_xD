@@ -3,18 +3,18 @@
 ## Current repository state (investigation)
 
 - A dedicated course video player already exists at:
-  - `/home/runner/work/hdpedu_8386_xD/hdpedu_8386_xD/components/video-player.tsx`
+  - `components/video-player.tsx`
 - It is used on the classroom page:
-  - `/home/runner/work/hdpedu_8386_xD/hdpedu_8386_xD/app/classroom/page.tsx`
+  - `app/classroom/page.tsx`
 - The current lesson video source is `lesson.videoUrl`, defined by course data:
-  - `/home/runner/work/hdpedu_8386_xD/hdpedu_8386_xD/lib/types.ts`
-  - `/home/runner/work/hdpedu_8386_xD/hdpedu_8386_xD/lib/data.ts`
+  - `lib/types.ts`
+  - `lib/data.ts`
 
 ## New external URL support
 
 The video player now supports external URLs with safer handling:
 
-- Accepts direct `https://` and `http://` URLs.
+- Accepts direct `https://` URLs.
 - Accepts internal relative URLs like `/videos/lesson-1.mp4`.
 - Converts GitHub `blob` links to raw file links automatically so they can play directly.
 - Shows a clear in-player error if playback fails (for example, host blocks CORS/direct access).
@@ -54,4 +54,5 @@ GitHub can be acceptable only for lightweight public demo assets, not paid produ
 
 - External video URLs must be directly fetchable by browsers.
 - If the host requires cookies/auth or blocks CORS, native `<video>` playback will fail.
+- The player requests external video with `crossOrigin="anonymous"`, so the video host should return appropriate CORS headers for your site origin.
 - For paid-only production content, prioritize providers that support private delivery primitives (signed URLs/tokens, geoblocking, analytics, and optional DRM).
