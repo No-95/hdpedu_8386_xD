@@ -1,6 +1,8 @@
 // src/lib/data.ts
 import { Course, User } from "./types"
 
+const classroomDemoVideoUrl = process.env.NEXT_PUBLIC_CLASSROOM_DEMO_VIDEO_URL ?? ""
+
 // Placeholder course used by the classroom page when no real data is available
 const placeholderCourse: Course = {
   id: "placeholder",
@@ -19,7 +21,7 @@ const placeholderCourse: Course = {
           title: "Welcome",
           duration: "5:00",
           isPremium: false,
-          videoUrl: "",
+          videoUrl: classroomDemoVideoUrl,
           completed: false,
         },
       ],
