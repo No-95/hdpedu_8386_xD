@@ -15,7 +15,7 @@ export default function HomePage() {
   const content = {
     hero: {
       vi: {
-        title: "Nền Tảng Học Trực Tuyến Giúp Bạn Chuẩn Bị Làm Việc Tại Hàn Quốc",
+        title: "NỀN TẢNG HỌC TRỰC TUYẾN GIÚP BẠN SẴN SÀNG LÀM VIỆC TẠI HÀN QUỐC",
         description: "Chúng tôi cung cấp các khóa học trực tuyến giúp người Việt Nam học tiếng Hàn, hiểu văn hóa doanh nghiệp và trang bị kỹ năng cần thiết để làm việc tại Hàn Quốc.",
         subtext: "Nội dung được thiết kế theo định hướng nghề nghiệp, bám sát thực tế môi trường làm việc tại Hàn Quốc và phù hợp với nền tảng của người Việt.",
         cta: "Khám Phá Khóa Học"
