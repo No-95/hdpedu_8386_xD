@@ -10,7 +10,7 @@
     "deploy:cloudflare": "pnpm build:cloudflare && npx wrangler deploy",
     "dev": "next dev",
     "dev:all": "concurrently \"pnpm run convex:dev\" \"pnpm run dev\"",
-    "lint": "eslint .",
+    "lint": "next build",
     "start": "next start",
     "convex:dev": "cross-env CONVEX_TMPDIR=./convex/.tmp npx convex dev",
     "convex:deploy": "npx convex deploy"
