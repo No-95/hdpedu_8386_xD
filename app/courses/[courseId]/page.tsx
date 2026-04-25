@@ -54,9 +54,18 @@ export default function CourseDetailPage() {
   const progress = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-[#000814]">
+    <div className="min-h-screen relative overflow-hidden bg-gray-50 dark:bg-[#000814]">
+      <div
+        className="fixed inset-0 -z-10 bg-cover bg-fixed bg-center bg-no-repeat light"
+        style={{
+          backgroundImage: 'url(/bg-course.png)',
+        }}
+      />
+      <div className="fixed inset-0 -z-10 bg-white/70 dark:hidden" />
+      <div className="fixed inset-0 -z-10 hidden dark:block bg-[#000814]" />
+
       {/* Header */}
-      <div className="bg-gradient-to-br from-[#a62a26] via-[#c73a32] to-[#8a2220] dark:from-[#000814] dark:via-[#0a0a2e] dark:to-[#1a1a4d]">
+      <div className="bg-gradient-to-br from-[#a62a26]/95 via-[#c73a32]/95 to-[#8a2220]/95 dark:from-[#000814] dark:via-[#0a0a2e] dark:to-[#1a1a4d] border-b border-white/20 dark:border-white/10 shadow-xl">
         <div className="mx-auto max-w-5xl px-6 py-10">
           <Link href="/courses" className="inline-flex items-center gap-2 text-white/80 hover:text-white text-sm mb-6 transition-colors">
             <ArrowLeft className="h-4 w-4" />
@@ -85,7 +94,7 @@ export default function CourseDetailPage() {
           </div>
 
           {/* Progress bar */}
-          <div className="mt-6 bg-white/10 rounded-xl p-4">
+          <div className="mt-6 bg-white/15 backdrop-blur-sm rounded-xl p-4 border border-white/20 shadow-lg">
             <div className="flex items-center justify-between mb-2">
               <span className="text-white font-semibold text-sm">Tiến độ học tập</span>
               <span className="text-white font-bold text-sm">{completedCount}/{totalLessons} bài</span>
@@ -104,7 +113,7 @@ export default function CourseDetailPage() {
       {/* Lesson list */}
       <div className="mx-auto max-w-5xl px-6 py-10">
         {course.modules.map((module, moduleIndex) => (
-          <div key={module.id} className="mb-8">
+          <div key={module.id} className="mb-8 rounded-2xl border border-white/60 bg-white/80 backdrop-blur-sm shadow-xl p-5 md:p-6 dark:border-white/10 dark:bg-[#0b1228]/80">
             <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
               <BookOpen className="h-5 w-5 text-[#a62a26]" />
               {module.title}
@@ -128,8 +137,8 @@ export default function CourseDetailPage() {
                       <Link href={`/courses/${courseId}/${lesson.id}`}>
                         <div className={`flex items-center gap-4 p-4 rounded-xl border transition-all duration-200 cursor-pointer
                           ${completed
-                            ? "bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-700"
-                            : "bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 hover:border-[#a62a26] hover:shadow-md"
+                            ? "bg-green-50/95 dark:bg-green-900/20 border-green-300 dark:border-green-700"
+                            : "bg-white/95 dark:bg-white/5 border-gray-200 dark:border-white/10 hover:border-[#a62a26] hover:shadow-md"
                           }`}
                         >
                           <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
@@ -156,7 +165,7 @@ export default function CourseDetailPage() {
                         </div>
                       </Link>
                     ) : (
-                      <div className="flex items-center gap-4 p-4 rounded-xl border bg-gray-100 dark:bg-white/3 border-gray-200 dark:border-white/5 opacity-60 cursor-not-allowed select-none">
+                      <div className="flex items-center gap-4 p-4 rounded-xl border bg-gray-100/90 dark:bg-white/3 border-gray-200 dark:border-white/5 opacity-60 cursor-not-allowed select-none">
                         <div className="w-10 h-10 rounded-full bg-gray-300 dark:bg-white/10 flex items-center justify-center flex-shrink-0">
                           <Lock className="h-5 w-5 text-gray-500 dark:text-white/40" />
                         </div>
