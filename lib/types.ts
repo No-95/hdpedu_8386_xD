@@ -21,6 +21,7 @@ export interface Course {
   thumbnail: string
   level: "Beginner" | "Intermediate" | "Advanced"
   modules: Module[]
+  isFree?: boolean
 }
 
 export interface User {

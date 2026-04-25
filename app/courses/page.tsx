@@ -202,6 +202,11 @@ export default function CoursesPage() {
                     <Badge className="mb-4 bg-[#a62a26] text-white px-3 py-1 rounded-full font-semibold">
                       ⭐ {language === "vi" ? "Được Đề Xuất" : "추천"}
                     </Badge>
+                    {featuredCourse.isFree && (
+                      <Badge className="mb-4 ml-2 bg-green-500 text-white px-3 py-1 rounded-full font-bold">
+                        ✅ Free 100%
+                      </Badge>
+                    )}
                     <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-3 leading-tight">
                       {featuredCourse.title}
                     </h3>
@@ -231,7 +236,7 @@ export default function CoursesPage() {
                       </div>
                     </div>
                   </div>
-                  <Link href={`/classroom?course=${featuredCourse.id}`} className="w-full mt-6">
+                  <Link href={featuredCourse.isFree ? `/courses/${featuredCourse.id}` : `/classroom?course=${featuredCourse.id}`} className="w-full mt-6">
                     <Button className="w-full bg-[#a62a26] hover:bg-[#8a2220] text-white font-semibold py-6 text-lg rounded-lg transition-all hover:shadow-lg">
                       {t("viewCourse")}
                       <ArrowRight className="ml-2 h-5 w-5" />
@@ -275,9 +280,15 @@ export default function CoursesPage() {
                         </div>
                         <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                         <div className="absolute right-3 top-3">
-                          <Badge className="bg-[#a62a26] text-white font-semibold shadow-lg hover:bg-[#8a2220] rounded-full px-3 py-1">
-                            {course.modules.length} Chương
-                          </Badge>
+                          {course.isFree ? (
+                            <Badge className="bg-green-500 text-white font-bold shadow-lg rounded-full px-3 py-1">
+                              ✅ Free 100%
+                            </Badge>
+                          ) : (
+                            <Badge className="bg-[#a62a26] text-white font-semibold shadow-lg hover:bg-[#8a2220] rounded-full px-3 py-1">
+                              {course.modules.length} Chương
+                            </Badge>
+                          )}
                         </div>
                         <div className="absolute left-3 top-3">
                           <Badge className={`${difficultyColors[course.level]} font-semibold shadow-lg rounded-full px-3 py-1`}>
@@ -316,7 +327,7 @@ export default function CoursesPage() {
                       </div>
                     </CardContent>
                     <CardFooter className="p-4">
-                      <Link href={`/classroom?course=${course.id}`} className="w-full">
+                      <Link href={course.isFree ? `/courses/${course.id}` : `/classroom?course=${course.id}`} className="w-full">
                         <Button className="w-full bg-[#a62a26] text-white hover:bg-[#8a2220] font-semibold transition-all group-hover:shadow-lg rounded-lg">
                           {t("viewCourse")}
                           <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />

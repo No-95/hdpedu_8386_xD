@@ -47,7 +47,7 @@ export default function HomePage() {
     },
     whatYouLearn: {
       vi: {
-        title: "Bạn Sẽ Học Được Gì",
+        title: "BẠN SẼ HỌC ĐƯỢC GÌ?",
         description: "Thông qua các chương trình học tập trực tuyến, người học sẽ được trang bị:",
         items: [
           "Tiếng Hàn ứng dụng trong môi trường làm việc",
@@ -71,7 +71,7 @@ export default function HomePage() {
     },
     journey: {
       vi: {
-        title: "Hành Trình Học Tập Của Bạn",
+        title: "HÀNH TRÌNH HỌC TẬP CỦA BẠN",
         steps: [
           { number: "01", title: "Nắm Vững Cơ Bản", desc: "Học các kiến thức cơ bản tiếng Hàn và văn hóa" },
           { number: "02", title: "Áp Dụng Thực Tế", desc: "Học tiếng Hàn thực tế theo từng lĩnh vực công việc" },
@@ -91,7 +91,7 @@ export default function HomePage() {
     },
     trainingFields: {
       vi: {
-        title: "Các Chương Trình Đào Tạo Chính",
+        title: "CÁC CHƯƠNG TRÌNH ĐÀO TẠO CHÍNH",
         items: [
           { title: "Tiếng Hàn Thực Tế", icon: BookOpen, desc: "Tiếng Hàn cần thiết trong môi trường làm việc thực tế", color: "from-blue-500/30 to-cyan-500/30" },
           { title: "Văn Hóa Doanh Nghiệp", icon: Briefcase, desc: "Hiểu biết về môi trường doanh nghiệp Hàn Quốc", color: "from-purple-500/30 to-pink-500/30" },
@@ -111,7 +111,7 @@ export default function HomePage() {
     },
     benefits: {
       vi: {
-        title: "Những Gì Bạn Sẽ Nhận Được",
+        title: "NHỮNG GÌ BẠN SẼ NHẬN ĐƯỢC",
         items: [
           { icon: Award, text: "Chứng chỉ được công nhân chứng" },
           { icon: TrendingUp, text: "Hỗ trợ phát triển sự nghiệp" },
@@ -135,7 +135,7 @@ export default function HomePage() {
     },
     cta: {
       vi: {
-        title: "Sẵn Sàng Thay Đổi Sự Nghiệp Của Bạn?",
+        title: "SẴN SÀNG THAY ĐỔI SỰ NGHIỆP CỦA BẠN?",
         description: "Hàng nghìn người Việt Nam đã thực hiện ước mơ tuyển dụng tại Hàn Quốc thông qua HDP EDU. Bạn cũng có thể làm được.",
         button: "Bắt Đầu Ngay Bây Giờ"
       },
@@ -221,7 +221,7 @@ export default function HomePage() {
                 <Globe className="h-4 w-4 text-[#a62a26] dark:text-white" />
                 <span className="text-xs font-bold uppercase tracking-[0.18em] text-[#a62a26] dark:text-white">Career Focused Korean Learning</span>
               </motion.div>
-              <motion.h2 className="text-4xl md:text-5xl font-black mb-6 leading-tight text-[#a62a26] dark:text-white" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+              <motion.h2 className="text-[2.14rem] md:text-[2.85rem] font-black mb-6 leading-[1.3] text-balance max-w-[19ch] tracking-[0.01em] text-[#a62a26] dark:text-white" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
                 {t("hero").title}
               </motion.h2>
               <motion.p className="text-lg mb-5 leading-relaxed text-slate-900 dark:text-white" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
@@ -302,7 +302,7 @@ export default function HomePage() {
             {t("journey").steps.map((step: any, index: number) => (
               <motion.div key={index} variants={itemVariants} className="relative">
                 <div className="rounded-2xl p-8 backdrop-blur-xl border border-[#a62a26]/45 shadow-xl hover:border-[#a62a26]/80 transition-all group h-full light:bg-[#a62a26]/32 dark:bg-transparent" style={{ borderColor: 'rgba(166, 42, 38, 0.35)' }}>
-                  <motion.div className="text-6xl font-black text-black/25 dark:text-white/20 mb-4" animate={{ opacity: [0.2, 0.5, 0.2] }} transition={{ duration: 3, repeat: Infinity, delay: index * 0.2 }}>
+                  <motion.div className="text-6xl font-black text-black/45 dark:text-white/40 mb-4" animate={{ opacity: [0.45, 0.75, 0.45] }} transition={{ duration: 3, repeat: Infinity, delay: index * 0.2 }}>
                     {step.number}
                   </motion.div>
                   <h3 className="text-2xl font-bold mb-3 text-black dark:text-white">{step.title}</h3>
