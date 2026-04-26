@@ -10,6 +10,7 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/lib/language-context";
 import { courses as coursesData } from "@/lib/data";
+import { useUser } from "@/lib/user-context";
 import { motion } from "framer-motion";
 
 const categories = [
@@ -28,8 +29,15 @@ const difficultyColors = {
 
 export default function CoursesPage() {
   const { language, t } = useLanguage();
+  const { isAuthenticated } = useUser();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
+
+  const getCourseHref = (courseId: string, isFree?: boolean) => {
+    const target = isFree ? `/courses/${courseId}` : `/classroom?course=${courseId}`;
+    if (isAuthenticated) return target;
+    return `/auth?redirect=${encodeURIComponent(target)}`;
+  };
 
   const filteredCourses = coursesData.filter((course) => {
     const matchesSearch = course.title.toLowerCase().includes(searchQuery.toLowerCase());
@@ -236,7 +244,7 @@ export default function CoursesPage() {
                       </div>
                     </div>
                   </div>
-                  <Link href={featuredCourse.isFree ? `/courses/${featuredCourse.id}` : `/classroom?course=${featuredCourse.id}`} className="w-full mt-6">
+                  <Link href={getCourseHref(featuredCourse.id, featuredCourse.isFree)} className="w-full mt-6">
                     <Button className="w-full bg-[#a62a26] hover:bg-[#8a2220] text-white font-semibold py-6 text-lg rounded-lg transition-all hover:shadow-lg">
                       {t("viewCourse")}
                       <ArrowRight className="ml-2 h-5 w-5" />
@@ -327,7 +335,7 @@ export default function CoursesPage() {
                       </div>
                     </CardContent>
                     <CardFooter className="p-4">
-                      <Link href={course.isFree ? `/courses/${course.id}` : `/classroom?course=${course.id}`} className="w-full">
+                      <Link href={getCourseHref(course.id, course.isFree)} className="w-full">
                         <Button className="w-full bg-[#a62a26] text-white hover:bg-[#8a2220] font-semibold transition-all group-hover:shadow-lg rounded-lg">
                           {t("viewCourse")}
                           <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />

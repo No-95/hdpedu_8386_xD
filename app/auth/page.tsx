@@ -171,14 +171,16 @@ function AuthFormShell({
   const { language, t } = useLanguage();
 
   return (
-    <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-100">
-      <div className="flex border-b border-slate-100 bg-slate-50/50">
+    <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-100 dark:bg-[#0d1a33]/95 dark:border-[#2a3f66]">
+      <div className="flex border-b border-slate-100 bg-slate-50/50 dark:border-[#2a3f66] dark:bg-[#091429]/90">
         <button
           type="button"
           onClick={() => setIsLogin(true)}
           className={cn(
             "flex-1 py-4 font-bold text-sm transition-all relative",
-            isLogin ? "text-[#a62a26] bg-white" : "text-slate-400 hover:text-slate-600"
+            isLogin
+              ? "text-[#a62a26] bg-white dark:bg-[#10264a] dark:text-white"
+              : "text-slate-400 hover:text-slate-600 dark:text-white/60 dark:hover:text-white"
           )}
         >
           {t("login")}
@@ -189,7 +191,9 @@ function AuthFormShell({
           onClick={() => setIsLogin(false)}
           className={cn(
             "flex-1 py-4 font-bold text-sm transition-all relative",
-            !isLogin ? "text-[#a62a26] bg-white" : "text-slate-400 hover:text-slate-600"
+            !isLogin
+              ? "text-[#a62a26] bg-white dark:bg-[#10264a] dark:text-white"
+              : "text-slate-400 hover:text-slate-600 dark:text-white/60 dark:hover:text-white"
           )}
         >
           {t("register")}
@@ -203,13 +207,13 @@ function AuthFormShell({
         <form onSubmit={onSubmit} className="space-y-4">
           {!isLogin && (
             <div className="space-y-1.5">
-              <Label className="text-slate-700 font-bold ml-1">{t("fullName")}</Label>
+              <Label className="text-slate-700 font-bold ml-1 dark:text-white">{t("fullName")}</Label>
               <div className="relative">
-                <User className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#a62a26]/50" />
+                <User className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#a62a26]/50 dark:text-white/60" />
                 <Input
                   type="text"
                   placeholder={language === "vi" ? "Nguyen Van A" : "John Doe"}
-                  className="pl-12 py-6 rounded-xl border-slate-200 focus:ring-[#a62a26]/20 focus:border-[#a62a26]"
+                  className="pl-12 py-6 rounded-xl border-slate-200 focus:ring-[#a62a26]/20 focus:border-[#a62a26] dark:bg-[#122846] dark:border-[#2b4671] dark:text-white dark:placeholder:text-white/60"
                   value={formData.fullName}
                   onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                   required
@@ -219,13 +223,13 @@ function AuthFormShell({
           )}
 
           <div className="space-y-1.5">
-            <Label className="text-slate-700 font-bold ml-1">{t("email")}</Label>
+            <Label className="text-slate-700 font-bold ml-1 dark:text-white">{t("email")}</Label>
             <div className="relative">
-              <Mail className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#a62a26]/50" />
+              <Mail className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#a62a26]/50 dark:text-white/60" />
               <Input
                 type="email"
                 placeholder="student@hdp.edu.vn"
-                className="pl-12 py-6 rounded-xl border-slate-200 focus:ring-[#a62a26]/20 focus:border-[#a62a26]"
+                className="pl-12 py-6 rounded-xl border-slate-200 focus:ring-[#a62a26]/20 focus:border-[#a62a26] dark:bg-[#122846] dark:border-[#2b4671] dark:text-white dark:placeholder:text-white/60"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 required
@@ -235,13 +239,13 @@ function AuthFormShell({
 
           {!isLogin && (
             <div className="space-y-1.5">
-              <Label className="text-slate-700 font-bold ml-1">{t("phoneNumber")}</Label>
+              <Label className="text-slate-700 font-bold ml-1 dark:text-white">{t("phoneNumber")}</Label>
               <div className="relative">
-                <Phone className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#a62a26]/50" />
+                <Phone className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#a62a26]/50 dark:text-white/60" />
                 <Input
                   type="tel"
                   placeholder="090..."
-                  className="pl-12 py-6 rounded-xl border-slate-200"
+                  className="pl-12 py-6 rounded-xl border-slate-200 dark:bg-[#122846] dark:border-[#2b4671] dark:text-white dark:placeholder:text-white/60"
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                 />
@@ -250,17 +254,17 @@ function AuthFormShell({
           )}
 
           <div className="space-y-1.5">
-            <Label className="text-slate-700 font-bold ml-1">{t("password")}</Label>
+            <Label className="text-slate-700 font-bold ml-1 dark:text-white">{t("password")}</Label>
             <div className="relative">
-              <Lock className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#a62a26]/50" />
+              <Lock className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#a62a26]/50 dark:text-white/60" />
               <Input
                 type={showPassword ? "text" : "password"}
-                className="pl-12 pr-12 py-6 rounded-xl border-slate-200"
+                className="pl-12 pr-12 py-6 rounded-xl border-slate-200 dark:bg-[#122846] dark:border-[#2b4671] dark:text-white dark:placeholder:text-white/60"
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 required
               />
-              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">
+              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-white/70">
                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
             </div>
@@ -268,17 +272,17 @@ function AuthFormShell({
 
           {!isLogin && (
             <div className="space-y-1.5">
-              <Label className="text-slate-700 font-bold ml-1">{t("confirmPassword")}</Label>
+              <Label className="text-slate-700 font-bold ml-1 dark:text-white">{t("confirmPassword")}</Label>
               <div className="relative">
-                <Lock className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#a62a26]/50" />
+                <Lock className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#a62a26]/50 dark:text-white/60" />
                 <Input
                   type={showConfirmPassword ? "text" : "password"}
-                  className="pl-12 pr-12 py-6 rounded-xl border-slate-200"
+                  className="pl-12 pr-12 py-6 rounded-xl border-slate-200 dark:bg-[#122846] dark:border-[#2b4671] dark:text-white dark:placeholder:text-white/60"
                   value={formData.confirmPassword}
                   onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                   required
                 />
-                <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">
+                <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-white/70">
                   {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
               </div>
@@ -287,12 +291,12 @@ function AuthFormShell({
 
           {isLogin && (
             <div className="text-right">
-              <Link href="#" className="text-xs font-bold text-[#a62a26] hover:underline">{t("forgotPassword")}</Link>
+              <Link href="#" className="text-xs font-bold text-[#a62a26] hover:underline dark:text-[#ff8f89]">{t("forgotPassword")}</Link>
             </div>
           )}
 
           {error && (
-            <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm">
+            <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm dark:bg-red-950/40 dark:border-red-700 dark:text-red-200">
               {error}
             </div>
           )}
@@ -307,11 +311,11 @@ function AuthFormShell({
         </form>
 
         <div className="mt-8 text-center">
-          <p className="text-sm text-slate-500 font-medium">
+          <p className="text-sm text-slate-500 font-medium dark:text-white/70">
             {isLogin ? t("noAccount") : t("haveAccount")}{" "}
             <button
               onClick={() => setIsLogin(!isLogin)}
-              className="text-[#a62a26] font-black hover:underline ml-1"
+              className="text-[#a62a26] font-black hover:underline ml-1 dark:text-[#ff8f89]"
             >
               {isLogin ? t("signUpNow") : t("signInNow")}
             </button>
@@ -340,16 +344,21 @@ export default function AuthPage() {
   // Only show fallback if backend is not ready and not on localhost
   if (shouldShowFallback) {
     return (
-      <div
-        className="min-h-screen bg-cover bg-fixed bg-center bg-no-repeat flex items-center justify-center px-4 py-12 pt-24"
-        style={{ backgroundImage: "url(/bg-course.png)", backgroundColor: "#f8fafc" }}
-      >
+      <div className="min-h-screen relative overflow-hidden flex items-center justify-center px-4 py-12 pt-24">
+        <div
+          className="fixed inset-0 -z-10 bg-cover bg-fixed bg-center bg-no-repeat dark:hidden"
+          style={{ backgroundImage: "url(/bg-course.png)" }}
+        />
+        <div
+          className="fixed inset-0 -z-10 hidden bg-cover bg-fixed bg-center bg-no-repeat dark:block"
+          style={{ backgroundImage: "url(/dark-mode.png)" }}
+        />
         <div className="absolute top-0 right-0 w-96 h-96 bg-[#a62a26]/5 rounded-full -mr-48 -mt-48" />
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#a62a26]/5 rounded-full -ml-48 -mb-48" />
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#a62a26]/5 rounded-full -ml-48 -mb-48 dark:bg-[#5b7ac4]/10" />
 
         <div className="w-full max-w-md relative z-10">
           <div className="mb-8 flex flex-col items-center">
-            <div className="mb-6 p-4 bg-white rounded-2xl shadow-lg transform hover:scale-105 transition-transform">
+            <div className="mb-6 p-4 bg-white rounded-2xl shadow-lg transform hover:scale-105 transition-transform dark:bg-[#10264a]/95 dark:border dark:border-[#2a3f66]">
               <Image
                 src="/hdp-logo.png"
                 alt="HDP Edu"
@@ -359,14 +368,14 @@ export default function AuthPage() {
                 priority
               />
             </div>
-            <h1 className="text-3xl font-black text-[#a62a26] text-center tracking-tight">
+            <h1 className="text-3xl font-black text-[#a62a26] dark:text-white text-center tracking-tight">
               HDP EDU
             </h1>
           </div>
 
           <RealAuthForm />
 
-          <p className="mt-8 text-center text-slate-400 text-xs font-medium">
+          <p className="mt-8 text-center text-slate-400 text-xs font-medium dark:text-white/70">
             &copy; 2026 HDP EDU. Secure Student Portal.
           </p>
         </div>
@@ -375,16 +384,21 @@ export default function AuthPage() {
   }
 
   return (
-    <div
-      className="min-h-screen bg-cover bg-fixed bg-center bg-no-repeat flex items-center justify-center px-4 py-12 pt-24"
-      style={{ backgroundImage: "url(/bg-course.png)", backgroundColor: "#f8fafc" }}
-    >
+    <div className="min-h-screen relative overflow-hidden flex items-center justify-center px-4 py-12 pt-24">
+      <div
+        className="fixed inset-0 -z-10 bg-cover bg-fixed bg-center bg-no-repeat dark:hidden"
+        style={{ backgroundImage: "url(/bg-course.png)" }}
+      />
+      <div
+        className="fixed inset-0 -z-10 hidden bg-cover bg-fixed bg-center bg-no-repeat dark:block"
+        style={{ backgroundImage: "url(/dark-mode.png)" }}
+      />
       <div className="absolute top-0 right-0 w-96 h-96 bg-[#a62a26]/5 rounded-full -mr-48 -mt-48" />
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#a62a26]/5 rounded-full -ml-48 -mb-48" />
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#a62a26]/5 rounded-full -ml-48 -mb-48 dark:bg-[#5b7ac4]/10" />
 
       <div className="w-full max-w-md relative z-10">
         <div className="mb-8 flex flex-col items-center">
-          <div className="mb-6 p-4 bg-white rounded-2xl shadow-lg transform hover:scale-105 transition-transform">
+          <div className="mb-6 p-4 bg-white rounded-2xl shadow-lg transform hover:scale-105 transition-transform dark:bg-[#10264a]/95 dark:border dark:border-[#2a3f66]">
             <Image
               src="/hdp-logo.png"
               alt="HDP Edu"
@@ -394,14 +408,14 @@ export default function AuthPage() {
               priority
             />
           </div>
-          <h1 className="text-3xl font-black text-[#a62a26] text-center tracking-tight">
+          <h1 className="text-3xl font-black text-[#a62a26] dark:text-white text-center tracking-tight">
             HDP EDU
           </h1>
         </div>
 
         <RealAuthForm />
 
-        <p className="mt-8 text-center text-slate-400 text-xs font-medium">
+        <p className="mt-8 text-center text-slate-400 text-xs font-medium dark:text-white/70">
           &copy; 2026 HDP EDU. Secure Student Portal.
         </p>
       </div>
